@@ -1,0 +1,14 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+      {
+          "Effect": "Allow",
+          "Action": "sts:AssumeRole",
+          "Resource": "*",
+          "Condition": {
+              "DateGreaterThan": {"aws:CurrentTime": "2021-11-01T00:00:00Z"},
+              "DateLessThan": {"aws:CurrentTime": "2022-01-30T23:59:59Z"}
+          }
+      }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "Deny-All-Services-Except-Listed-Services",
+        "Effect": "Deny",
+        "NotAction": [
+          "ec2:*",
+          "autoscaling:*",
+          "elasticloadbalancing:*",
+          "ebs:*",
+          "cloudwatch:*"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Sid": "Allow-Launch-EC2-with-Limited-InstanceType",
+        "Effect": "Deny",
+        "Action": "ec2:RunInstances",
+        "Resource": "*",
+        "Condition": {
+          "ForAnyValue:StringNotLike": {
+            "ec2:InstanceType": [
+              "*.nano",
+              "*.small",
+              "*.micro"
+            ]
+          }
+        }
+      }
+    ]
+  }
