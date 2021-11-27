@@ -1,0 +1,46 @@
+Description: >
+  Membuat EC2 baru dengan SecurityGroup dan ElasticIP.
+
+Resources:
+  DemoEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-04902260ca3d33422
+      InstanceType: t3.micro
+# Pasang SecurityGroup yang dibuat dibawah
+      SecurityGroups:
+        - !Ref DemoSecurityGroup
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          yum update -y
+          yum install -y httpd
+          systemctl start httpd
+          systemctl enable httpd
+          echo "<html><head><title>Hello Word</title></head><body><h1>Hello Cloudformation!</h1></body></html>" > /var/www/html/index.html
+      Tags: 
+      - Key: "Name"
+        Value: "DemoEC2 with SecurityGroup and ElasticIP"
+      - Key: "OS"
+        Value: "Amazon Linux 2"
+
+# Buat ElasticIP dan pasang ke EC2 instance yang dibuat
+  DemoEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      InstanceId: !Ref DemoEC2Instance
+
+# Buat SecurityGroup yang membolehkan akses HTTP dan SSH untuk semua IP address
+  DemoSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow all IP address to SSH and HTTP
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
