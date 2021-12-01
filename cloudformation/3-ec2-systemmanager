@@ -1,0 +1,58 @@
+Description: >
+  Membuat EC2 yang terdaftar di SystemManager. EC2 juga memiliki SecurityGroup dan ElasticIP.
+Parameters:
+  AMIParameter:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /aws/service/ami-amazon-linux-latest/amzn-ami-hvm-x86_64-gp2
+    Description": "Select the AMI for EC2 (Amazon Linux and Amazon Linux 2)"
+  InstanceTypeParameter:
+    Type: String
+    Default: t3.micro
+    AllowedValues:
+      - t3.nano
+      - t3.micro
+      - t3.small
+    Description: Enter instance type for EC2 instance. Default value is t3.micro.
+Resources:
+  DemoEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref AMI
+      InstanceType: !Ref InstanceTypeParameter
+# Pasang SecurityGroup yang dibuat dibawah
+      SecurityGroups:
+        - !Ref DemoSecurityGroup
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          yum update -y
+          yum install -y httpd
+          systemctl start httpd
+          systemctl enable httpd
+          echo "<html><head><title>Hello Word</title></head><body><h1>Hello Cloudformation!</h1></body></html>" > /var/www/html/index.html
+      Tags: 
+      - Key: "Name"
+        Value: "DemoEC2"
+      - Key: "OS"
+        Value: "Amazon Linux 2"
+
+# Buat ElasticIP dan pasang ke EC2 instance yang dibuat
+  DemoEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      InstanceId: !Ref DemoEC2Instance
+
+# Buat SecurityGroup yang membolehkan akses HTTP dan SSH untuk semua IP address
+  DemoSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow all IP address to SSH and HTTP
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
