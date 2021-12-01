@@ -1,7 +1,7 @@
 description: |-
-  ## SSMAutomation - InstallSoftware (Advanced)
+  ## SSMAutomation-InstallSoftware
   This document is created to automate installing the website to your EC2 instance. Feel free to use this document and change the Approvers with your User ARN and NotificationArn with your SNS ARN.
-  *Worked with Linux AMI and simple HTML website*
+  *Worked with Linux AMI and HTTP website*
 schemaVersion: '0.3'
 parameters:
   InstanceId:
