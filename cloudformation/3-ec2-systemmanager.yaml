@@ -1,5 +1,5 @@
 Description: >
-  Membuat EC2 yang terdaftar di SystemManager dengan menggunakan AMI Amazon Linux terbaru yang sudah terinstall SSM agent dan IAM Role yang memberikan permission ke agent supaya bisa komunikasi dengan AWS. EC2 juga memiliki SecurityGroup dan ElasticIP.
+  Membuat EC2 yang terdaftar di SystemManager dengan menggunakan AMI Amazon Linux 2 terbaru yang sudah terinstall SSM agent dan IAM Role yang memberikan permission ke agent supaya bisa komunikasi dengan AWS. EC2 juga memiliki SecurityGroup dan ElasticIP.
 
 Parameters:
   AMIParameter:
@@ -29,10 +29,16 @@ Resources:
         Fn::Base64: |
           #!/bin/bash
           yum update -y
+          amazon-linux-extras install -y php7.2
           yum install -y httpd
           systemctl start httpd
           systemctl enable httpd
-          echo "<html><head><title>Hello Word</title></head><body><h1>Hello Cloudformation!</h1></body></html>" > /var/www/html/index.html
+          usermod -a -G apache ec2-user
+          chown -R ec2-user:apache /var/www
+          chmod 2775 /var/www
+          find /var/www -type d -exec chmod 2775 {} \;
+          find /var/www -type f -exec chmod 0664 {} \;
+          echo "<?php phpinfo(); ?>" > /var/www/html/phpinfo.php
       Tags: 
       - Key: "Name"
         Value: "DemoEC2"
