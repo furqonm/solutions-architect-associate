@@ -1,10 +1,12 @@
 Description: >
-  Membuat EC2 yang terdaftar di SystemManager. EC2 juga memiliki SecurityGroup dan ElasticIP.
+  Membuat EC2 yang terdaftar di SystemManager dengan menggunakan AMI Amazon Linux terbaru yang sudah terinstall SSM agent dan IAM Role yang memberikan permission ke agent supaya bisa komunikasi dengan AWS. EC2 juga memiliki SecurityGroup dan ElasticIP.
+
 Parameters:
   AMIParameter:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /aws/service/ami-amazon-linux-latest/amzn-ami-hvm-x86_64-gp2
-    Description": "Select the AMI for EC2 (Amazon Linux and Amazon Linux 2)"
+    Description: "Select the AMI for EC2 (The default is latest Amazon Linux 2)"
+
   InstanceTypeParameter:
     Type: String
     Default: t3.micro
@@ -13,13 +15,14 @@ Parameters:
       - t3.micro
       - t3.small
     Description: Enter instance type for EC2 instance. Default value is t3.micro.
+
 Resources:
-  DemoEC2Instance:
+  DemoEC2:
     Type: AWS::EC2::Instance
     Properties:
-      ImageId: !Ref AMI
+      ImageId: !Ref AMIParameter
       InstanceType: !Ref InstanceTypeParameter
-# Pasang SecurityGroup yang dibuat dibawah
+      IamInstanceProfile: !Ref DemoEC2ProfileforSSM
       SecurityGroups:
         - !Ref DemoSecurityGroup
       UserData:
@@ -34,15 +37,16 @@ Resources:
       - Key: "Name"
         Value: "DemoEC2"
       - Key: "OS"
-        Value: "Amazon Linux 2"
+        Value: "Latest Amazon Linux 2"
 
-# Buat ElasticIP dan pasang ke EC2 instance yang dibuat
   DemoEIP:
     Type: AWS::EC2::EIP
     Properties:
-      InstanceId: !Ref DemoEC2Instance
-
-# Buat SecurityGroup yang membolehkan akses HTTP dan SSH untuk semua IP address
+      InstanceId: !Ref DemoEC2
+      Tags: 
+      - Key: "Name"
+        Value: "DemoEIP"
+  
   DemoSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -56,3 +60,30 @@ Resources:
         FromPort: 22
         ToPort: 22
         CidrIp: 0.0.0.0/0
+      Tags: 
+      - Key: "Name"
+        Value: "DemoSecurityGroup"
+  
+  DemoEC2RoleforSSM:
+    Type: AWS::IAM::Role
+    Properties: 
+      AssumeRolePolicyDocument: 
+        Statement: 
+          - Effect: Allow
+            Principal: 
+              Service:
+                - ec2.amazonaws.com
+            Action: 
+              - sts:AssumeRole
+      ManagedPolicyArns: 
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+      Path: "/"
+      Tags: 
+      - Key: "Name"
+        Value: "DemoEC2RoleforSSM"
+  DemoEC2ProfileforSSM:
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      Path: "/"
+      Roles: 
+        - !Ref DemoEC2RoleforSSM
