@@ -1,4 +1,7 @@
-description: Flow to automate installing the software for Linux
+description: |-
+  ## SSMAutomation - InstallSoftware (Advanced)
+  This document is created to automate installing the website to your EC2 instance. Feel free to use this document and change the Approvers with your User ARN and NotificationArn with your SNS ARN.
+  *Worked with Linux AMI and simple HTML website*
 schemaVersion: '0.3'
 parameters:
   InstanceId:
@@ -54,7 +57,7 @@ mainSteps:
     inputs:
       StackName: 'SSMAuto-TemporaryEC2Stack-{{automation:EXECUTION_ID}}'
     description: Terminate the temporary EC2 stack in CloudFormation
-  - name: DeregisterAMI
+  - name: DeleteAMI
     action: 'aws:deleteImage'
     inputs:
       ImageId: '{{CreateAMI.CreatedImageId}}'
