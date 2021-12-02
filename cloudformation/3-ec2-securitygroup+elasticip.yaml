@@ -35,7 +35,7 @@ Resources:
       ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AmazonLinux]
       InstanceType: !Ref InstanceTypeParameter
       KeyName: !Ref SSHKey
-# Pasang SecurityGroup yang dibuat dibawah
+# Pasang SecurityGroup yang dibuat dibawah.
       SecurityGroups:
         - !Ref DemoSecurityGroup
       UserData:
@@ -56,7 +56,7 @@ Resources:
       - Key: OS
         Value: Amazon Linux 2
 
-# Buat ElasticIP dan pasang ke EC2 instance yang dibuat
+# Buat ElasticIP dan pasang ke EC2 instance yang dibuat.
   DemoEIP:
     Type: AWS::EC2::EIP
     Properties:
@@ -65,7 +65,7 @@ Resources:
       - Key: Name
         Value: DemoEIP
 
-# Buat SecurityGroup yang membolehkan akses HTTP dan SSH untuk semua IP address
+# Buat SecurityGroup yang membolehkan akses HTTP dan SSH untuk semua IP address.
   DemoSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:

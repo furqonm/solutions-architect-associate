@@ -2,7 +2,7 @@ Description: >
   Membuat EC2 yang terdaftar di SystemManager dengan menggunakan AMI Amazon Linux 2 terbaru yang sudah terinstall SSM agent, dan IAM Role yang memberikan permission ke SSM agent agar bisa dikontrol oleh AWS System Manager. EC2 juga memiliki SecurityGroup dan ElasticIP.
 
 Parameters:
-# User memasukkan AMI ID yang disimpan di System Manager - Parameter Store yang nanti digunakan oleh EC2 instance, atau bisa menggunakan default value dari Public Parameter Store yang disediakan oleh AWS yang berisikan latest AMI ID untuk Amazon Linux 2.  Gunakan Amazon Linux 2 yang sudah memiliki SSM agent terinstall didalamnya.
+# User memasukkan AMI ID yang disimpan di System Manager - Parameter Store untuk EC2 instance, atau bisa menggunakan default value dari Public Parameter Store yang disediakan oleh AWS yang berisikan latest AMI ID untuk Amazon Linux 2.  Gunakan Amazon Linux 2 yang sudah memiliki SSM agent terinstall didalamnya.
   AMIParameter:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
