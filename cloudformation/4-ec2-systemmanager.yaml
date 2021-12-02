@@ -10,12 +10,12 @@ Parameters:
 
   InstanceTypeParameter:
     Type: String
-    Default: t3.micro
+    Default: t3a.micro
     AllowedValues:
-      - t3.nano
-      - t3.micro
-      - t3.small
-    Description: Enter instance type for EC2 instance. The default value is t3.micro.
+      - t3a.nano
+      - t3a.micro
+      - t3a.small
+    Description: Enter instance type for EC2 instance. The default value is t3a.micro.
 
 Resources:
   DemoEC2:

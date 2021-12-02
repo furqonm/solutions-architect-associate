@@ -1,0 +1,176 @@
+Description: >
+  Membuat EC2 yang terdaftar di SystemManager dengan menggunakan AMI Amazon Linux 2 terbaru yang sudah terinstall SSM agent, dan IAM Role yang memberikan permission ke SSM agent agar bisa dikontrol oleh AWS System Manager. EC2 juga memiliki SecurityGroup dan ElasticIP.
+
+Parameters:
+# User memilih System Manager - Parameter Store yang berisi AMI ID untuk EC2 instance, atau bisa menggunakan default value dari Public Parameter Store dari AWS yang berisikan latest AMI ID untuk Windows Server 2022.
+  AMI:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /aws/service/ami-windows-latest/Windows_Server-2022-English-Full-Base
+    Description: Select the AMI ID inside System Manager - Parameter Store (The default value is the latest Windows Server 2022 in Public Parameter Store)
+
+  Features:
+    Description: A COMMA seperated list of Windows features that you want to enable. Please refer to Get-WindowsFeature cmdlet to fill out this parameter.
+    Type: String
+    Default: RSAT-AD-Tools,RSAT-DNS-Server
+
+  ActiveDirectoryName:
+    Description: Active Directory name parameter.
+    Type: String
+    Default: trainocate.nusa
+
+  InstanceType:
+    Type: String
+    Default: t3a.micro
+    AllowedValues:
+      - t3a.micro
+      - t3a.small
+      - t3a.medium
+    Description: Enter instance type for EC2 instance. The default value is t3a.micro.
+
+  SSHKey:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Select existing EC2 KeyPair for remote RDP.
+
+  VPC:
+    Type: AWS::EC2::VPC::Id
+    Description: Select the VPC ID
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet::Id
+    Description: Select the first Private Subnet
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet::Id
+    Description: Select the second Private Subnet
+
+Resources:
+  MyDirectory: 
+    Type: AWS::DirectoryService::MicrosoftAD
+    Properties: 
+        Name: !Ref ActiveDirectoryName
+        CreateAlias: "True"
+        Edition: Standard
+        Password: '{{resolve:ssm-secure:/microsoft/active-directory/password:1}}'
+        VpcSettings: 
+          SubnetIds: 
+            - Ref: PrivateSubnet1
+            - Ref: PrivateSubnet2
+          VpcId: 
+            Ref: VPC
+
+  DemoEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref AMI
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref DemoEC2ProfileforDirectoryService
+      KeyName: !Ref SSHKey
+      SecurityGroups:
+        - !Ref DemoSecurityGroup
+      UserData:
+        Fn::Base64:
+          Fn::Sub : |
+            <powershell>
+            Install-WindowsFeature -Name  ${Features} -Restart -IncludeAllSubFeature -IncludeManagementTools
+            </powershell>
+      SsmAssociations:
+      - DocumentName: !Ref JoinADDocument
+        AssociationParameters:
+        - Key: directoryId
+          Value:
+          - !GetAtt MyDirectory.Alias
+        - Key: directoryName
+          Value:
+          - !Ref ActiveDirectoryName
+        - Key: dnsIpAddresses
+          Value: 
+          - !GetAtt MyDirectory.DnsIpAddresses
+      Tags:
+      - Key: Name
+        Value: DemoEC2
+      - Key: OS
+        Value: Latest Windows Server 2022
+
+  JoinADDocument:
+    Type: AWS::SSM::Document
+    Properties:
+      Content:
+        schemaVersion: '1.2'
+        description: Join instances to an AWS Directory Service domain.
+        parameters:
+          directoryId:
+            type: String
+            description: (Required) The ID of the AWS Directory Service directory.
+          directoryName:
+            type: String
+            description: (Required) The name of the directory, for example trainocate.internal
+          dnsIpAddresses:
+            type: StringList
+            default: []
+            description: (Optional) The IP addresses of the DNS servers in the directory. Required when DHCP is not configured.
+            allowedPattern: "((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
+        runtimeConfig:
+          aws:domainjoin:
+            properties:
+              directoryId: "{{ directoryId }}"
+              directoryName: "{{ directoryName }}"
+              dnsIpAddresses: "{{ dnsIpAddresses }}"
+
+  DemoEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      InstanceId: !Ref DemoEC2
+      Tags: 
+      - Key: Name
+        Value: DemoEIP
+  
+  DemoSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow all IP address to SSH and HTTP
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 3389
+        ToPort: 3389
+        CidrIp: 0.0.0.0/0
+      Tags:
+      - Key: Name
+        Value: DemoSecurityGroup
+
+  DemoEC2RoleforDirectoryService:
+    Type: AWS::IAM::Role
+    Properties: 
+      AssumeRolePolicyDocument:
+        Statement: 
+          - Effect: Allow
+            Principal: 
+              Service:
+                - ec2.amazonaws.com
+            Action: 
+              - sts:AssumeRole
+      ManagedPolicyArns: 
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+        - arn:aws:iam::aws:policy/AmazonSSMDirectoryServiceAccess
+      Path: "/"
+      Tags: 
+      - Key: Name
+        Value: DemoEC2RoleforDirectoryService
+  DemoEC2ProfileforDirectoryService:
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      Path: "/"
+      Roles: 
+        - !Ref DemoEC2RoleforDirectoryService
+
+Outputs:
+  EC2PublicDNS:
+    Description: Public DNS Endpoint of EC2
+    Value: !GetAtt DemoEC2.PublicDnsName
+  FeaturesEnabled:
+    Value: !Ref Features
+    Description: Features enabled on this instance.
+  DirectoryAlias:
+    Description: The alias for a directory
+    Value: !GetAtt MyDirectory.Alias
