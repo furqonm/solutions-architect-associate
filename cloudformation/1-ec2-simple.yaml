@@ -3,7 +3,7 @@ Description: >
 
 Resources:
 # Buat EC2 instance dengan pilihan AMI, InstanceType, UserData dan Tag.
-  DemoEC2Instance:
+  DemoEC2:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: ami-04902260ca3d33422
@@ -12,12 +12,28 @@ Resources:
         Fn::Base64: |
           #!/bin/bash
           yum update -y
+          amazon-linux-extras install -y php7.2
           yum install -y httpd
           systemctl start httpd
           systemctl enable httpd
-          echo "<html><head><title>Hello Word</title></head><body><h1>Hello Cloudformation!</h1></body></html>" > /var/www/html/index.html
+          usermod -a -G apache ec2-user
+          chown -R ec2-user:apache /var/www
+          chmod 2775 /var/www
+          echo "<?php phpinfo(); ?>" > /var/www/html/phpinfo.php
       Tags: 
-      - Key: "Name"
-        Value: "DemoEC2"
-      - Key: "OS"
-        Value: "Amazon Linux 2"
+      - Key: Name
+        Value: DemoEC2
+      - Key: OS
+        Value: Amazon Linux 2
+
+# Ekstrak informasi EC2 instance yang dibuat.
+Outputs:
+  EC2PublicDNS:
+    Description: Public DNS Endpoint of EC2
+    Value: !GetAtt DemoEC2.PublicDnsName
+  EC2PublicIP:
+    Description: Public IPv4 of EC2
+    Value: !GetAtt DemoEC2.PublicIp
+  EC2PrivateIP:
+    Description: Private IPv4 of EC2
+    Value: !GetAtt DemoEC2.PrivateIp

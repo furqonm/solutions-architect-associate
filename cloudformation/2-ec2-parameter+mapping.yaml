@@ -1,0 +1,71 @@
+Description: >
+  Membuat EC2 baru dengan Parameter (untuk InstanceType dan SSH keypair) dan Mapping (untuk AMI ID).
+
+Parameters:
+# User memilih InstanceType yang nanti digunakan oleh EC2 instance, atau bisa menggunakan default value.
+  InstanceTypeParameter:
+    Type: String
+    Default: t3.micro
+    AllowedValues:
+      - t3.nano
+      - t3.micro
+      - t3.small
+    Description: Enter instance type for EC2 instance. The default value is t3.micro.
+
+# User memilih SSH Keypair untuk remote ke EC2 instance.
+  SSHKey:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Select existing EC2 KeyPair for remote SSH.
+
+# Daftar AMI yang akan digunakan oleh EC2 instance jika dieksekusi di Region yang berbeda.
+Mappings:
+  RegionMap:
+    us-east-1:
+      AmazonLinux: ami-04902260ca3d33422
+    us-west-1: 
+      AmazonLinux: ami-0d5075a2643fdf738
+    eu-west-1: 
+      AmazonLinux: ami-09ce2fc392a4c0fbc
+    ap-southeast-1: 
+      AmazonLinux: ami-03326c3f2f37e56a4
+    ap-northeast-1: 
+      AmazonLinux: ami-0404778e217f54308
+
+Resources:
+  DemoEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+# Gunakan AMI sesuai dengan Region dimana template dieksekusi.
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AmazonLinux]
+# Gunakan InstanceType yang dipilih oleh User.
+      InstanceType: !Ref InstanceTypeParameter
+# Gunakan SSH Keypair yang dipilih oleh User.
+      KeyName: !Ref SSHKey
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          yum update -y
+          amazon-linux-extras install -y php7.2
+          yum install -y httpd
+          systemctl start httpd
+          systemctl enable httpd
+          usermod -a -G apache ec2-user
+          chown -R ec2-user:apache /var/www
+          chmod 2775 /var/www
+          echo "<?php phpinfo(); ?>" > /var/www/html/phpinfo.php
+      Tags: 
+      - Key: Name
+        Value: DemoEC2
+      - Key: OS
+        Value: Amazon Linux 2
+
+Outputs:
+  EC2PublicDNS:
+    Description: Public DNS Endpoint of EC2
+    Value: !GetAtt DemoEC2.PublicDnsName
+  EC2PublicIP:
+    Description: Public IPv4 of EC2
+    Value: !GetAtt DemoEC2.PublicIp
+  EC2PrivateIP:
+    Description: Private IPv4 of EC2
+    Value: !GetAtt DemoEC2.PrivateIp
