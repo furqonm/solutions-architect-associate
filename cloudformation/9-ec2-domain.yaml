@@ -46,15 +46,13 @@ Resources:
     Type: AWS::DirectoryService::MicrosoftAD
     Properties: 
         Name: !Ref ActiveDirectoryName
-        CreateAlias: "True"
         Edition: Standard
         Password: '{{resolve:ssm-secure:/microsoft/active-directory/password:1}}'
         VpcSettings: 
           SubnetIds: 
-            - Ref: PrivateSubnet1
-            - Ref: PrivateSubnet2
-          VpcId: 
-            Ref: VPC
+            - !Ref PrivateSubnet1
+            - !Ref PrivateSubnet2
+          VpcId: !Ref VPC
 
   DemoEC2:
     Type: AWS::EC2::Instance
@@ -76,16 +74,17 @@ Resources:
         AssociationParameters:
         - Key: directoryId
           Value:
-          - !GetAtt MyDirectory.Alias
+          - !Ref MyDirectory
         - Key: directoryName
           Value:
           - !Ref ActiveDirectoryName
         - Key: dnsIpAddresses
           Value: 
-          - !GetAtt MyDirectory.DnsIpAddresses
+          - !Select [0, !GetAtt MyDirectory.DnsIpAddresses]
+          - !Select [1, !GetAtt MyDirectory.DnsIpAddresses]
       Tags:
       - Key: Name
-        Value: DemoEC2
+        Value: DemoEC2Windows
       - Key: OS
         Value: Latest Windows Server 2022
 
@@ -108,7 +107,7 @@ Resources:
             description: (Optional) The IP addresses of the DNS servers in the directory. Required when DHCP is not configured.
             allowedPattern: "((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
         runtimeConfig:
-          aws:domainjoin:
+          aws:domainJoin:
             properties:
               directoryId: "{{ directoryId }}"
               directoryName: "{{ directoryName }}"
@@ -171,6 +170,9 @@ Outputs:
   FeaturesEnabled:
     Value: !Ref Features
     Description: Features enabled on this instance.
-  DirectoryAlias:
-    Description: The alias for a directory
-    Value: !GetAtt MyDirectory.Alias
+  DirectoryIPAddress1:
+    Description: The first IP address for a directory
+    Value: !Select [0, !GetAtt MyDirectory.DnsIpAddresses]
+  DirectoryIPAddress2:
+    Description: The second IP address for a directory
+    Value: !Select [1, !GetAtt MyDirectory.DnsIpAddresses]
