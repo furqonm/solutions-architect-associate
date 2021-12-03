@@ -67,7 +67,7 @@ Resources:
         Fn::Base64:
           Fn::Sub : |
             <powershell>
-            Install-WindowsFeature -Name  ${Features} -Restart -IncludeAllSubFeature -IncludeManagementTools
+            Install-WindowsFeature -Name  ${Features} -IncludeAllSubFeature -IncludeManagementTools
             </powershell>
       SsmAssociations:
       - DocumentName: !Ref JoinADDocument
