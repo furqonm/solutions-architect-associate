@@ -2,7 +2,7 @@ Description: >
   Membuat EC2 baru dengan SecurityGroup dan ElasticIP. EC2 juga akan menggunakan Parameter (untuk InstanceType dan SSH keypair) dan Mapping (untuk AMI ID).
 
 Parameters:
-  InstanceTypeParameter:
+  InstanceType:
     Type: String
     Default: t3a.micro
     AllowedValues:
@@ -29,15 +29,15 @@ Mappings:
       AmazonLinux: ami-0404778e217f54308
 
 Resources:
-  DemoEC2:
+  EC2:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AmazonLinux]
-      InstanceType: !Ref InstanceTypeParameter
+      InstanceType: !Ref InstanceType
       KeyName: !Ref SSHKey
 # Pasang SecurityGroup yang dibuat dibawah.
       SecurityGroups:
-        - !Ref DemoSecurityGroup
+        - !Ref SecurityGroup
       UserData:
         Fn::Base64: |
           #!/bin/bash
@@ -54,21 +54,21 @@ Resources:
           echo "<?php phpinfo(); ?>" > /var/www/html/phpinfo.php
       Tags: 
       - Key: Name
-        Value: DemoEC2
+        Value: MyEC2
       - Key: OS
         Value: Amazon Linux 2
 
 # Buat ElasticIP dan pasang ke EC2 instance yang dibuat.
-  DemoEIP:
+  EIP:
     Type: AWS::EC2::EIP
     Properties:
-      InstanceId: !Ref DemoEC2
+      InstanceId: !Ref EC2
       Tags: 
       - Key: Name
-        Value: DemoEIP
+        Value: MyEIP
 
 # Buat SecurityGroup yang membolehkan akses HTTP dan SSH untuk semua IP address.
-  DemoSecurityGroup:
+  SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Allow all IP address to SSH and HTTP
@@ -83,15 +83,15 @@ Resources:
         CidrIp: 0.0.0.0/0
       Tags:
       - Key: Name
-        Value: DemoSecurityGroup
+        Value: MySecurityGroup
 
 Outputs:
   EC2PublicDNS:
     Description: Public DNS Endpoint of EC2
-    Value: !GetAtt DemoEC2.PublicDnsName
+    Value: !GetAtt EC2.PublicDnsName
   EC2PublicIP:
     Description: Public IPv4 of EC2
-    Value: !GetAtt DemoEC2.PublicIp
+    Value: !GetAtt EC2.PublicIp
   EC2PrivateIP:
     Description: Private IPv4 of EC2
-    Value: !GetAtt DemoEC2.PrivateIp
+    Value: !GetAtt EC2.PrivateIp

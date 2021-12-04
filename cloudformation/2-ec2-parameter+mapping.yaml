@@ -3,7 +3,7 @@ Description: >
 
 Parameters:
 # User memilih InstanceType yang nanti digunakan oleh EC2 instance, atau bisa menggunakan default value.
-  InstanceTypeParameter:
+  InstanceType:
     Type: String
     Default: t3a.micro
     AllowedValues:
@@ -32,13 +32,13 @@ Mappings:
       AmazonLinux: ami-0404778e217f54308
 
 Resources:
-  DemoEC2:
+  EC2:
     Type: AWS::EC2::Instance
     Properties:
 # Gunakan AMI sesuai dengan Region dimana template dieksekusi.
       ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AmazonLinux]
 # Gunakan InstanceType yang dipilih oleh User.
-      InstanceType: !Ref InstanceTypeParameter
+      InstanceType: !Ref InstanceType
 # Gunakan SSH Keypair yang dipilih oleh User.
       KeyName: !Ref SSHKey
       UserData:
@@ -57,17 +57,17 @@ Resources:
           echo "<?php phpinfo(); ?>" > /var/www/html/phpinfo.php
       Tags: 
       - Key: Name
-        Value: DemoEC2
+        Value: MyEC2
       - Key: OS
         Value: Amazon Linux 2
 
 Outputs:
   EC2PublicDNS:
     Description: Public DNS Endpoint of EC2
-    Value: !GetAtt DemoEC2.PublicDnsName
+    Value: !GetAtt EC2.PublicDnsName
   EC2PublicIP:
     Description: Public IPv4 of EC2
-    Value: !GetAtt DemoEC2.PublicIp
+    Value: !GetAtt EC2.PublicIp
   EC2PrivateIP:
     Description: Private IPv4 of EC2
-    Value: !GetAtt DemoEC2.PrivateIp
+    Value: !GetAtt EC2.PrivateIp

@@ -3,12 +3,12 @@ Description: >
 
 Parameters:
 # User memilih System Manager - Parameter Store yang berisi AMI ID untuk EC2 instance, atau bisa menggunakan default value dari Public Parameter Store dari AWS yang berisikan latest AMI ID untuk Amazon Linux 2. Gunakan Amazon Linux 2 yang sudah memiliki SSM agent terinstall didalamnya.
-  AMIParameter:
+  AMI:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
     Description: Select the AMI ID inside System Manager - Parameter Store (The default value is the latest Amazon Linux 2 in Public Parameter Store)
 
-  InstanceTypeParameter:
+  InstanceType:
     Type: String
     Default: t3a.micro
     AllowedValues:
@@ -18,16 +18,16 @@ Parameters:
     Description: Enter instance type for EC2 instance. The default value is t3a.micro.
 
 Resources:
-  DemoEC2:
+  EC2:
     Type: AWS::EC2::Instance
     Properties:
 # Gunakan AMI sesuai dengan value dari Parameter Store.
-      ImageId: !Ref AMIParameter
-      InstanceType: !Ref InstanceTypeParameter
+      ImageId: !Ref AMI
+      InstanceType: !Ref InstanceType
 # Gunakan InstanceProfile yang terhubung dengan IAM Role yang dibuat.
-      IamInstanceProfile: !Ref DemoEC2ProfileforSSM
+      IamInstanceProfile: !Ref EC2ProfileforSSM
       SecurityGroups:
-        - !Ref DemoSecurityGroup
+        - !Ref SecurityGroup
       UserData:
         Fn::Base64: |
           #!/bin/bash
@@ -44,19 +44,17 @@ Resources:
           echo "<?php phpinfo(); ?>" > /var/www/html/phpinfo.php
       Tags: 
       - Key: Name
-        Value: DemoEC2
-      - Key: OS
-        Value: Latest Amazon Linux 2
+        Value: MyEC2
 
-  DemoEIP:
+  EIP:
     Type: AWS::EC2::EIP
     Properties:
-      InstanceId: !Ref DemoEC2
+      InstanceId: !Ref EC2
       Tags: 
       - Key: Name
-        Value: DemoEIP
+        Value: MyEIP
   
-  DemoSecurityGroup:
+  SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Allow all IP address to SSH and HTTP
@@ -65,16 +63,16 @@ Resources:
         FromPort: 80
         ToPort: 80
         CidrIp: 0.0.0.0/0
-      - IpProtocol: tcp
-        FromPort: 22
-        ToPort: 22
+      - IpProtocol: icmp
+        FromPort: -1
+        ToPort: -1
         CidrIp: 0.0.0.0/0
       Tags:
       - Key: Name
-        Value: DemoSecurityGroup
+        Value: MySecurityGroup
 
 # Buat IAM Role yang membolehkan agar SSM agent di EC2 bisa dikontrol oleh AWS System Manager.
-  DemoEC2RoleforSSM:
+  EC2RoleforSSM:
     Type: AWS::IAM::Role
     Properties: 
       AssumeRolePolicyDocument: 
@@ -90,22 +88,22 @@ Resources:
       Path: "/"
       Tags: 
       - Key: Name
-        Value: DemoEC2RoleforSSM
+        Value: MyEC2RoleforSSM
   # Buat InstanceProfile yang terhubung dengan IAM Role. IAM Role tidak akan dipasang secara langsung ke EC2 instance, melainkan InstanceProfile inilah yang akan dipasang.
-  DemoEC2ProfileforSSM:
+  EC2ProfileforSSM:
     Type: AWS::IAM::InstanceProfile
     Properties: 
       Path: "/"
       Roles: 
-        - !Ref DemoEC2RoleforSSM
+        - !Ref EC2RoleforSSM
 
 Outputs:
   EC2PublicDNS:
     Description: Public DNS Endpoint of EC2
-    Value: !GetAtt DemoEC2.PublicDnsName
+    Value: !GetAtt EC2.PublicDnsName
   EC2PublicIP:
     Description: Public IPv4 of EC2
-    Value: !GetAtt DemoEC2.PublicIp
+    Value: !GetAtt EC2.PublicIp
   EC2PrivateIP:
     Description: Private IPv4 of EC2
-    Value: !GetAtt DemoEC2.PrivateIp
+    Value: !GetAtt EC2.PrivateIp

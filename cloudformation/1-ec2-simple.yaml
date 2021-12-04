@@ -3,7 +3,7 @@ Description: >
 
 Resources:
 # Buat EC2 instance dengan pilihan AMI, InstanceType, UserData dan Tag.
-  DemoEC2:
+  EC2:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: ami-04902260ca3d33422
@@ -24,7 +24,7 @@ Resources:
           echo "<?php phpinfo(); ?>" > /var/www/html/phpinfo.php
       Tags: 
       - Key: Name
-        Value: DemoEC2
+        Value: MyEC2
       - Key: OS
         Value: Amazon Linux 2
 
@@ -32,10 +32,10 @@ Resources:
 Outputs:
   EC2PublicDNS:
     Description: Public DNS Endpoint of EC2
-    Value: !GetAtt DemoEC2.PublicDnsName
+    Value: !GetAtt EC2.PublicDnsName
   EC2PublicIP:
     Description: Public IPv4 of EC2
-    Value: !GetAtt DemoEC2.PublicIp
+    Value: !GetAtt EC2.PublicIp
   EC2PrivateIP:
     Description: Private IPv4 of EC2
-    Value: !GetAtt DemoEC2.PrivateIp
+    Value: !GetAtt EC2.PrivateIp
