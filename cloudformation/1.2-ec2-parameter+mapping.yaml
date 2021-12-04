@@ -36,12 +36,6 @@ Parameters:
     Type: AWS::EC2::KeyPair::KeyName
     Description: Select existing EC2 KeyPair for remote SSH.
 
-# User memasukkan pesan ke halaman index.html.
-  Message:
-    Type: String
-    Description: Insert the message to index.html page.
-    Default: MyEC2
-
 Resources:
   EC2:
     Type: AWS::EC2::Instance
@@ -55,28 +49,32 @@ Resources:
 # Gunakan SSH Keypair yang dipilih oleh User.
       KeyName: !Ref SSHKeypair
       UserData:
-        Fn::Base64:
-# UserData bisa menggunakan variable dari parameter dengan notasi ${parameter} memanfaatkan Fn::Sub atau !Sub.
-          Fn::Sub: |
-            #!/bin/bash
-            yum update -y
-            yum install -y httpd
-            systemctl start httpd
-            systemctl enable httpd
-            echo "
-              <html>
-                <head><title>EC2 Home</title></head>
-                <body>
-                  <h1>Hello ${Message} </h1>
-                </body>
-              </html>" > /var/www/html/index.html
-            echo "
-              <html>
-                <head><title>EC2 Health</title></head>
-                <body>
-                  <h1>EC2 is healthy</h1>
-                </body>
-              </html>" > /var/www/html/health.html
+# Mengambil data dari Instance Metadata dan memasukkan data kedalam halaman html.
+        Fn::Base64: |
+          #!/bin/bash
+          yum update -y
+          yum install -y httpd
+          systemctl start httpd
+          systemctl enable httpd
+          InstanceID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+          PrivateIP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
+          Hostname=$(curl -s http://169.254.169.254/latest/meta-data/hostname)
+          echo "
+            <html>
+              <head><title>EC2 Home</title></head>
+              <body>
+                <h1>Hello $InstanceID </h1>
+                <h3>Private IP: $PrivateIP </h3>
+                <h3>Hostname: $Hostname </h3>
+              </body>
+            </html>" > /var/www/html/index.html
+          echo "
+            <html>
+              <head><title>EC2 Health</title></head>
+              <body>
+                <h1>EC2 is healthy</h1>
+              </body>
+            </html>" > /var/www/html/health.html
       Tags:
       - Key: Name
         Value: MyEC2
