@@ -1,0 +1,32 @@
+Description: >
+  Membuat VPC dengan public dan private subnets didalam satu Availability Zone. Didalamnya ada Internet Gateway, Route Table, Security Group.
+
+Parameters:
+  MyFirstVPC:
+    Description: Please enter the name for first VPC
+    Type: String
+    Default: MyVPC1
+  MySecondVPC:
+    Description: Please enter the name for second VPC
+    Type: String
+    Default: MyVPC2
+
+Resources:
+  VPC1:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/5.1-vpc-singleaz.yaml
+      Parameters:
+        VPCName: !Ref MyFirstVPC
+        VPCCIDR: 192.168.0.0/16
+        PublicSubnetCIDR: 192.168.0.0/24
+        PrivateSubnetCIDR: 192.168.1.0/24
+  VPC2:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/5.1-vpc-singleaz.yaml
+      Parameters:
+        VPCName: !Ref MySecondVPC
+        VPCCIDR: 172.31.0.0/16
+        PublicSubnetCIDR: 172.31.0.0/24
+        PrivateSubnetCIDR: 172.31.1.0/24
