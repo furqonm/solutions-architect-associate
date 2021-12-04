@@ -21,10 +21,6 @@ Parameters:
     Type: AWS::EC2::Subnet::Id
     Description: Select existing Subnet for EC2.
 
-  SecurityGroup:
-    Type: AWS::EC2::SecurityGroup::GroupName
-    Description: Select existing Security Group for EC2.
-
 Resources:
   EC2:
     Type: AWS::EC2::Instance

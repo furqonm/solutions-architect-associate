@@ -1,0 +1,71 @@
+Description: >
+  Membuat EC2 dimasing-masing VPC yang berbeda dengan memanfaatkan template lain (nested stack).
+
+Parameters:
+  VPCOne:
+    Description: Please enter the name for first VPC
+    Type: String
+    Default: MyVPC1
+  VPCTwo:
+    Description: Please enter the name for second VPC
+    Type: String
+    Default: MyVPC2
+  InstanceType:
+    Type: String
+    Default: t3a.micro
+    AllowedValues:
+      - t3a.nano
+      - t3a.micro
+      - t3a.small
+    Description: Select instance type for EC2 instance. The default value is t3a.micro.
+
+Resources:
+  VPC1:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/6.1-vpc-multiaz.yaml
+      Parameters:
+        VPCName: !Ref VPCOne
+        VPCCIDR: 192.168.0.0/16
+        PublicSubnet1CIDR: 192.168.0.0/24
+        PrivateSubnet1CIDR: 192.168.1.0/24
+        PublicSubnet2CIDR: 192.168.2.0/24
+        PrivateSubnet2CIDR: 192.168.3.0/24
+
+  VPC2:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/6.1-vpc-multiaz.yaml
+      Parameters:
+        VPCName: !Ref VPCTwo
+        VPCCIDR: 172.31.0.0/16
+        PublicSubnet1CIDR: 172.31.0.0/24
+        PrivateSubnet1CIDR: 172.31.1.0/24
+        PublicSubnet2CIDR: 172.31.2.0/24
+        PrivateSubnet2CIDR: 172.31.3.0/24
+
+  EC2One:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/4-ec2-systemmanager.yaml
+      Parameters:
+        InstanceType: !Ref InstanceType
+        SubnetID: !Select [0, !Split [",", !GetAtt [VPC1,Outputs.PublicSubnetsCIDR]]]
+
+  EC2Two:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/4-ec2-systemmanager.yaml
+      Parameters:
+        InstanceType: !Ref InstanceType
+        SubnetID: !Select [0, !Split [",", !GetAtt [VPC2,Outputs.PublicSubnetsCIDR]]]
+
+Outputs:
+  PublicDNSofEC2One:
+    Description: Public DNS Endpoint of EC2One
+    Value:
+      Fn::GetAtt: [EC2One,Outputs.EC2PublicDNS]
+  PublicDNSofEC2Two:
+    Description: Public DNS Endpoint of EC2Two
+    Value:
+      Fn::GetAtt: [EC2Two,Outputs.EC2PublicDNS]
