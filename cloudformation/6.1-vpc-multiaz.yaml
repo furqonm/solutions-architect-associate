@@ -1,0 +1,169 @@
+Description: >
+  Membuat VPC dengan masing-masing 1 public dan 1 private subnet dikedua Availability Zone. Didalamnya ada Internet Gateway, Route Table, Security Group.
+
+Parameters:
+# User memasukkan nama VPC yang akan digunakan oleh beberapa komponen didalam VPC melalui Tag.
+  VPCName:
+    Description: Enter the name for this VPC
+    Type: String
+    Default: VPC
+
+# User memasukkan IP range yang nanti digunakan oleh VPC.
+  VPCCIDR:
+    Description: Enter the IP range for this VPC
+    Type: String
+    Default: 192.168.0.0/16
+# User memasukkan beberapa IP range yang nanti digunakan oleh beberapa Subnet didalam VPC.
+  PublicSubnet1CIDR:
+    Description: Enter the IP range for the public subnet 1 in the first Availability Zone
+    Type: String
+    Default: 192.168.0.0/24
+  PrivateSubnet1CIDR:
+    Description: Enter the IP range for the private subnet 1 in the first Availability Zone
+    Type: String
+    Default: 192.168.1.0/24
+  PublicSubnet2CIDR:
+    Description: Enter the IP range for the public subnet 2 in the second Availability Zone
+    Type: String
+    Default: 192.168.3.0/24
+  PrivateSubnet2CIDR:
+    Description: Enter the IP range for the private subnet 2 in the second Availability Zone
+    Type: String
+    Default: 192.168.4.0/24
+
+Resources:
+# Buat VPC dengan CIDR block yang user masukkan sebelumnya. EnableDnsHostnames memungkinkan VPC memberikan menerapkan public DNS hostnames ke EC2 instance. Sedangkan EnableDnsSupport memungkinkan untuk melakukan DNS resolution menggunakan Amazon DNS server.
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VPCCIDR
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Sub Lab - ${VPCName} 
+
+  VpcCidrBlockIpv6:
+    Type: AWS::EC2::VPCCidrBlock
+    Properties:
+      VpcId: !Ref VPC
+      AmazonProvidedIpv6CidrBlock: true
+
+# Buat Internet Gateway untuk koneksi internet.
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Lab - ${VPCName} FastInternet
+# Pasang Internet Gateway ke VPC.
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
+
+# Buat PublicSubnet untuk VPC dengan CIDR block yang user masukkan sebelumnya.
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [0, !GetAZs '']
+      CidrBlock: !Ref PublicSubnet1CIDR
+# Memungkinkan instance didalam Subnet mendapatkan IP public.
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub Lab - ${VPCName} PublicSubnet1
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [1, !GetAZs '']
+      CidrBlock: !Ref PublicSubnet2CIDR
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub Lab - ${VPCName} PublicSubnet2
+
+# Buat PrivateSubnet untuk VPC dengan CIDR block yang user masukkan sebelumnya.
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [0, !GetAZs '']
+      CidrBlock: !Ref PrivateSubnet1CIDR
+# Tidak memberikan IP public untuk instance didalam Subnet.
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub Lab - ${VPCName} PrivateSubnet1
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [1, !GetAZs '']
+      CidrBlock: !Ref PrivateSubnet2CIDR
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub Lab - ${VPCName} PrivateSubnet2
+
+# Buat RouteTable didalam VPC.
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub Lab - ${VPCName} PublicRoutes
+# Buat Route didalam RouteTable yang mengarahkan traffic ke Internet Gateway.
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+# Pasang RouteTable ke PublicSubnet yang kita buat sebelumnya.
+  RouteTableAssociation1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet1
+  RouteTableAssociation2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet2
+
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow all IP address to SSH and HTTP
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: icmp
+        FromPort: -1
+        ToPort: -1
+        CidrIp: 0.0.0.0/0
+      Tags:
+      - Key: Name
+        Value: !Sub Lab - ${VPCName} SecurityGroup
+
+Outputs:
+  PublicSubnetsCIDR:
+    Description: A list of the public subnets CIDR
+    Value: !Join [ ",", [ !Ref PublicSubnet1, !Ref PublicSubnet2 ]]
+  PrivateSubnetsCIDR:
+    Description: A list of the private subnets CIDR
+    Value: !Join [ ",", [ !Ref PrivateSubnet1, !Ref PrivateSubnet2 ]]

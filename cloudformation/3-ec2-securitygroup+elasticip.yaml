@@ -1,5 +1,5 @@
 Description: >
-  Membuat EC2 baru dengan SecurityGroup dan ElasticIP. EC2 juga akan menggunakan Parameter (untuk InstanceType dan SSH keypair) dan Mapping (untuk AMI ID).
+  Membuat EC2 baru dengan SecurityGroup dan ElasticIP. EC2 juga akan menggunakan Parameter (untuk InstanceType dan SSH Keypair) dan Mapping (untuk AMI ID).
 
 Parameters:
   InstanceType:
@@ -9,36 +9,25 @@ Parameters:
       - t3a.nano
       - t3a.micro
       - t3a.small
-    Description: Enter instance type for EC2 instance. The default value is t3a.micro.
+    Description: Select instance type for EC2 instance. The default value is t3a.micro.
 
-  SSHKey:
+  SSHKeypair:
     Type: AWS::EC2::KeyPair::KeyName
     Description: Select existing EC2 KeyPair for remote SSH.
-
-Mappings: 
-  RegionMap: 
-    us-east-1: 
-      AmazonLinux: ami-04902260ca3d33422
-    us-west-1: 
-      AmazonLinux: ami-0d5075a2643fdf738
-    eu-west-1: 
-      AmazonLinux: ami-09ce2fc392a4c0fbc
-    ap-southeast-1: 
-      AmazonLinux: ami-03326c3f2f37e56a4
-    ap-northeast-1: 
-      AmazonLinux: ami-0404778e217f54308
 
 Resources:
   EC2:
     Type: AWS::EC2::Instance
     Properties:
-      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AmazonLinux]
+# Gunakan AMI ID milik Amazon Linux 2 terbaru dari public Parameter Store yang disediakan oleh AWS.
+      ImageId: '{{resolve:ssm:/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2}}'
       InstanceType: !Ref InstanceType
-      KeyName: !Ref SSHKey
-# Pasang SecurityGroup yang dibuat dibawah.
+      KeyName: !Ref SSHKeypair
+# Pasang SecurityGroup yang dibuat ke EC2 instance.
       SecurityGroups:
         - !Ref SecurityGroup
       UserData:
+# Download dan extract halaman website kedalam EC2 instance.
         Fn::Base64: |
           #!/bin/bash
           yum update -y
@@ -46,12 +35,13 @@ Resources:
           yum install -y httpd
           systemctl start httpd
           systemctl enable httpd
-          usermod -a -G apache ec2-user
-          chown -R ec2-user:apache /var/www
           chmod 2775 /var/www
           find /var/www -type d -exec chmod 2775 {} \;
           find /var/www -type f -exec chmod 0664 {} \;
-          echo "<?php phpinfo(); ?>" > /var/www/html/phpinfo.php
+          cd /var/www/html
+          wget https://furqonmauladani.s3.amazonaws.com/package.zip
+          unzip package.zip
+          rm -f package.zip
       Tags: 
       - Key: Name
         Value: MyEC2
@@ -71,7 +61,7 @@ Resources:
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow all IP address to SSH and HTTP
+      GroupDescription: Allow all IP address to HTTP, SSH, and ICMP
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 80
@@ -81,10 +71,15 @@ Resources:
         FromPort: 22
         ToPort: 22
         CidrIp: 0.0.0.0/0
+      - IpProtocol: icmp
+        FromPort: -1
+        ToPort: -1
+        CidrIp: 0.0.0.0/0
       Tags:
       - Key: Name
         Value: MySecurityGroup
 
+# Ekstrak informasi EC2 instance yang dibuat. Public IPv4 atau public DNS-nya tetap berlaku, meskipun EC2-nya dimatikan dan dihidupkan karena EC2 menggunakan Elastic IP.
 Outputs:
   EC2PublicDNS:
     Description: Public DNS Endpoint of EC2

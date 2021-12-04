@@ -1,21 +1,5 @@
 Description: >
-  Membuat EC2 baru dengan Parameter (untuk InstanceType dan SSH keypair) dan Mapping (untuk AMI ID).
-
-Parameters:
-# User memilih InstanceType yang nanti digunakan oleh EC2 instance, atau bisa menggunakan default value.
-  InstanceType:
-    Type: String
-    Default: t3a.micro
-    AllowedValues:
-      - t3a.nano
-      - t3a.micro
-      - t3a.small
-    Description: Enter instance type for EC2 instance. The default value is t3a.micro.
-
-# User memilih SSH Keypair untuk remote ke EC2 instance.
-  SSHKey:
-    Type: AWS::EC2::KeyPair::KeyName
-    Description: Select existing EC2 KeyPair for remote SSH.
+  Membuat EC2 baru dengan Parameter (untuk InstanceType, SubnetID dan SSH Keypair) dan Mapping (untuk AMI ID).
 
 # Daftar AMI yang akan digunakan oleh EC2 instance jika dieksekusi di Region yang berbeda.
 Mappings:
@@ -31,6 +15,33 @@ Mappings:
     ap-northeast-1: 
       AmazonLinux: ami-0404778e217f54308
 
+Parameters:
+# User memilih InstanceType yang nanti digunakan oleh EC2 instance, atau bisa menggunakan default value.
+  InstanceType:
+    Type: String
+    Default: t3a.micro
+    AllowedValues:
+      - t3a.nano
+      - t3a.micro
+      - t3a.small
+    Description: Select instance type for EC2 instance. The default value is t3a.micro.
+
+# User memilih Subnet untuk EC2 instance.
+  SubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: Select existing Subnet for EC2.
+
+# User memilih SSH Keypair untuk remote ke EC2 instance.
+  SSHKeypair:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Select existing EC2 KeyPair for remote SSH.
+
+# User memasukkan pesan ke halaman index.html.
+  Message:
+    Type: String
+    Description: Insert the message to index.html page.
+    Default: MyEC2
+
 Resources:
   EC2:
     Type: AWS::EC2::Instance
@@ -39,23 +50,34 @@ Resources:
       ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AmazonLinux]
 # Gunakan InstanceType yang dipilih oleh User.
       InstanceType: !Ref InstanceType
+# Gunakan Subnet yang dipilih oleh User.
+      SubnetId: !Ref SubnetID
 # Gunakan SSH Keypair yang dipilih oleh User.
-      KeyName: !Ref SSHKey
+      KeyName: !Ref SSHKeypair
       UserData:
-        Fn::Base64: |
-          #!/bin/bash
-          yum update -y
-          amazon-linux-extras install -y php7.2
-          yum install -y httpd
-          systemctl start httpd
-          systemctl enable httpd
-          usermod -a -G apache ec2-user
-          chown -R ec2-user:apache /var/www
-          chmod 2775 /var/www
-          find /var/www -type d -exec chmod 2775 {} \;
-          find /var/www -type f -exec chmod 0664 {} \;
-          echo "<?php phpinfo(); ?>" > /var/www/html/phpinfo.php
-      Tags: 
+        Fn::Base64:
+# UserData bisa menggunakan variable dari parameter dengan notasi ${parameter} memanfaatkan Fn::Sub atau !Sub.
+          Fn::Sub: |
+            #!/bin/bash
+            yum update -y
+            yum install -y httpd
+            systemctl start httpd
+            systemctl enable httpd
+            echo "
+              <html>
+                <head><title>EC2 Home</title></head>
+                <body>
+                  <h1>Hello ${Message} </h1>
+                </body>
+              </html>" > /var/www/html/index.html
+            echo "
+              <html>
+                <head><title>EC2 Health</title></head>
+                <body>
+                  <h1>EC2 is healthy</h1>
+                </body>
+              </html>" > /var/www/html/health.html
+      Tags:
       - Key: Name
         Value: MyEC2
       - Key: OS

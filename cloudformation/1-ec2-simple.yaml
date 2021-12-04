@@ -2,33 +2,28 @@ Description: >
   Membuat EC2 baru dengan settingan minimal.
 
 Resources:
-# Buat EC2 instance dengan pilihan AMI, InstanceType, UserData dan Tag.
+# Buat EC2 instance dengan pilihan AMI, InstanceType, UserData, dan Tag.
   EC2:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: ami-04902260ca3d33422
       InstanceType: t3a.micro
       UserData:
+# Fn::Base64 untuk mengirimkan data yang diencode kedalam EC2 instance sebagai UserData. Notasi | digunakan menggabungkan beberapa baris kalimat jika isinya terlalu panjang.
         Fn::Base64: |
           #!/bin/bash
           yum update -y
-          amazon-linux-extras install -y php7.2
           yum install -y httpd
           systemctl start httpd
           systemctl enable httpd
-          usermod -a -G apache ec2-user
-          chown -R ec2-user:apache /var/www
-          chmod 2775 /var/www
-          find /var/www -type d -exec chmod 2775 {} \;
-          find /var/www -type f -exec chmod 0664 {} \;
-          echo "<?php phpinfo(); ?>" > /var/www/html/phpinfo.php
+          echo "<html><h1>Hello EC2</h1></html>" > /var/www/html/index.html
       Tags: 
       - Key: Name
         Value: MyEC2
       - Key: OS
         Value: Amazon Linux 2
 
-# Ekstrak informasi EC2 instance yang dibuat.
+# Ekstrak informasi EC2 instance yang dibuat. Namun apabila EC2 instance dimatikan, maka public IPv4 atau public DNS-nya akan tidak berlaku lagi karena berubah saat EC2-nya dihidupkan kembali.
 Outputs:
   EC2PublicDNS:
     Description: Public DNS Endpoint of EC2
