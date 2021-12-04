@@ -1,12 +1,12 @@
 Description: >
-  Membuat EC2 yang terdaftar di SystemManager dengan menggunakan AMI Amazon Linux 2 terbaru yang sudah terinstall SSM agent, dan IAM Role yang memberikan permission ke SSM agent agar bisa dikontrol oleh AWS System Manager. EC2 juga memiliki SecurityGroup dan ElasticIP.
+  Membuat EC2 yang terdaftar di SystemManager dengan menggunakan AMI Amazon Linux 2 terbaru yang sudah terinstall SSM agent, dan IAM Role yang memberikan permission ke SSM agent agar bisa dikontrol oleh AWS System Manager.
 
 Parameters:
-# User memilih System Manager - Parameter Store yang berisi AMI ID untuk EC2 instance, atau bisa menggunakan default value dari Public Parameter Store dari AWS yang berisikan latest AMI ID untuk Amazon Linux 2. Gunakan Amazon Linux 2 yang sudah memiliki SSM agent terinstall didalamnya.
+# User memilih System Manager - Parameter Store yang berisi AMI ID untuk EC2 instance, atau bisa menggunakan public Parameter Store yang disediakan oleh AWS yang berisi AMI ID milik Amazon Linux 2 terbaru. Harap gunakan AMI seperti Amazon Linux 2 yang sudah memiliki SSM agent terinstall didalamnya.
   AMI:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
-    Description: Select the AMI ID inside System Manager - Parameter Store (The default value is the latest Amazon Linux 2 in Public Parameter Store)
+    Description: Select the AMI ID inside System Manager - Parameter Store (The default value is the latest Amazon Linux 2 in public Parameter Store)
 
   InstanceType:
     Type: String
@@ -15,7 +15,15 @@ Parameters:
       - t3a.nano
       - t3a.micro
       - t3a.small
-    Description: Enter instance type for EC2 instance. The default value is t3a.micro.
+    Description: Select instance type for EC2 instance. The default value is t3a.micro.
+
+  SubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: Select existing Subnet for EC2.
+
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup::GroupName
+    Description: Select existing Security Group for EC2.
 
 Resources:
   EC2:
@@ -24,10 +32,9 @@ Resources:
 # Gunakan AMI sesuai dengan value dari Parameter Store.
       ImageId: !Ref AMI
       InstanceType: !Ref InstanceType
+      SubnetId: !Ref SubnetID
 # Gunakan InstanceProfile yang terhubung dengan IAM Role yang dibuat.
       IamInstanceProfile: !Ref EC2ProfileforSSM
-      SecurityGroups:
-        - !Ref SecurityGroup
       UserData:
         Fn::Base64: |
           #!/bin/bash
@@ -42,7 +49,7 @@ Resources:
           find /var/www -type d -exec chmod 2775 {} \;
           find /var/www -type f -exec chmod 0664 {} \;
           echo "<?php phpinfo(); ?>" > /var/www/html/phpinfo.php
-      Tags: 
+      Tags:
       - Key: Name
         Value: MyEC2
 
@@ -54,23 +61,6 @@ Resources:
       - Key: Name
         Value: MyEIP
   
-  SecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Allow all IP address to SSH and HTTP
-      SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: 80
-        ToPort: 80
-        CidrIp: 0.0.0.0/0
-      - IpProtocol: icmp
-        FromPort: -1
-        ToPort: -1
-        CidrIp: 0.0.0.0/0
-      Tags:
-      - Key: Name
-        Value: MySecurityGroup
-
 # Buat IAM Role yang membolehkan agar SSM agent di EC2 bisa dikontrol oleh AWS System Manager.
   EC2RoleforSSM:
     Type: AWS::IAM::Role
@@ -89,7 +79,7 @@ Resources:
       Tags: 
       - Key: Name
         Value: MyEC2RoleforSSM
-  # Buat InstanceProfile yang terhubung dengan IAM Role. IAM Role tidak akan dipasang secara langsung ke EC2 instance, melainkan InstanceProfile inilah yang akan dipasang.
+# Buat InstanceProfile yang terhubung dengan IAM Role. IAM Role tidak akan dipasang secara langsung ke EC2 instance, melainkan InstanceProfile inilah yang akan dipasang.
   EC2ProfileforSSM:
     Type: AWS::IAM::InstanceProfile
     Properties: 

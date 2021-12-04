@@ -35,3 +35,11 @@ Resources:
         PrivateSubnet1CIDR: 172.31.1.0/24
         PublicSubnet2CIDR: 172.31.2.0/24
         PrivateSubnet2CIDR: 172.31.3.0/24
+
+Outputs:
+  PublicSubnetsCIDR:
+    Description: A list of the public subnets CIDR
+    Value: !Join [ ",", [ !Ref PublicSubnet1, !Ref PublicSubnet2 ]]
+  PrivateSubnetsCIDR:
+    Description: A list of the private subnets CIDR
+    Value: !Join [ ",", [ !Ref PrivateSubnet1, !Ref PrivateSubnet2 ]]
