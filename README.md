@@ -14,7 +14,6 @@ _[DISCLAIMER] Links dan materials yang ada disini dipergunakan untuk tambahan ma
 - [Exam Readiness: AWS Certified Solutions Architect – Associate (Digital)](https://explore.skillbuilder.aws/learn/course/internal/view/elearning/125/exam-readiness-aws-certified-solutions-architect-associate-digital/enroll)
 > Video latihan persiapan ujian SAA-C02 dari AWS. Materi berisikan eksplorasi topik yang keluar di ujian dan beberapa contoh soal ujian. Login menggunakan akun Amazon, bukan akun AWS.
 - [AWS Certified Solutions Architect Associate Cheat Sheets](https://digitalcloud.training/certification-training/aws-solutions-architect-associate) **(Unofficial)**
-- [AWS Cheat Sheets](https://tutorialsdojo.com/aws-cheat-sheets/) **(Unofficial)**
 > Catatan berisikan key point service-service di AWS.
 
 ## Hands on Lab
