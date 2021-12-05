@@ -119,3 +119,8 @@ Outputs:
   EC2PrivateIP:
     Value: !GetAtt EC2.PrivateIp
     Description: Private IPv4 of EC2
+  RemoteEC2:
+    Value:
+# Menggabung beberapa text untuk menampilkan link untuk remote via System Manager - Session Manager.
+      Fn::Join: [ "", [ "https://console.aws.amazon.com/systems-manager/session-manager/", !Ref EC2, "?region=", !Ref "AWS::Region" ]]
+    Description: Remote EC2 via System Manager - Session Manager

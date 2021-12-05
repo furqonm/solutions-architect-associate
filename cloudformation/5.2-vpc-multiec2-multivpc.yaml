@@ -18,7 +18,6 @@ Parameters:
     Description: Please enter the name for second VPC.
     Type: String
     Default: MySecondVPC
-
   InstanceType:
     Type: String
     Default: t3a.micro
@@ -77,10 +76,18 @@ Resources:
 
 Outputs:
   PublicDNSofFirstEC2:
-    Description: Public DNS Endpoint of First EC2
+    Description: Public DNS endpoint of first EC2
     Value:
       Fn::GetAtt: [FirstEC2,Outputs.EC2PublicDNS]
   PublicDNSofSecondEC2:
-    Description: Public DNS Endpoint of Second EC2
+    Description: Public DNS endpoint of second EC2
     Value:
       Fn::GetAtt: [SecondEC2,Outputs.EC2PublicDNS]
+  RemoteFirstEC2:
+    Description: Remote first EC2 via System Manager - Session Manager
+    Value:
+      Fn::GetAtt: [FirstEC2,Outputs.RemoteEC2]
+  RemoteSecondEC2:
+    Description: Remote second EC2 via System Manager - Session Manager
+    Value:
+      Fn::GetAtt: [SecondEC2,Outputs.RemoteEC2]
