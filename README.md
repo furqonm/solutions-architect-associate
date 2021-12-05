@@ -19,10 +19,10 @@ _[DISCLAIMER] Links dan materials yang ada disini dipergunakan untuk tambahan ma
 
 ## Hands on Lab
 ### 1. Video Demo Lab
-- [AWS Technical Essentials - v4](http://bit.ly/tesslabs)
 - [AWS Technical Essentials - v5](http://bit.ly/tesslabs5)
-- [Architecting on AWS - v6.8](http://bit.ly/arclabs)
+- [AWS Technical Essentials - v4](http://bit.ly/tesslabs)
 - [Architecting on AWS - v7.0](http://bit.ly/arclabv7)
+- [Architecting on AWS - v6.8](http://bit.ly/arclabs)
 > Video rekaman pengerjaan lab yang bisa kita tonton buat ngerefresh apa yang pernah kita kerjakan dulu.
 
 ## 2. Free Labs
