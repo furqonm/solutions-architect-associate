@@ -1,5 +1,5 @@
 Description: >
-  Membuat EC2 baru dengan Parameter (untuk InstanceType, SubnetID dan SSH Keypair) dan Mapping (untuk AMI ID).
+  Membuat Linux EC2 baru dengan Parameter (untuk InstanceType, SubnetID dan SSH Keypair) dan Mapping (untuk AMI ID).
 
 # Daftar AMI yang akan digunakan oleh EC2 instance jika dieksekusi di Region yang berbeda.
 Mappings:

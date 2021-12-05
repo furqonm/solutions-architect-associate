@@ -1,0 +1,116 @@
+Description: >
+  Membuat EC2 yang terdaftar di SystemManager dengan menggunakan AMI Amazon Linux 2 terbaru yang sudah terinstall SSM agent, dan IAM Role yang memberikan permission ke SSM agent agar bisa dikontrol oleh AWS System Manager. EC2 juga memiliki SecurityGroup dan ElasticIP.
+
+Parameters:
+# User memilih System Manager - Parameter Store yang berisi AMI ID untuk EC2 instance, atau bisa menggunakan default value dari Public Parameter Store dari AWS yang berisikan latest AMI ID untuk Windows Server 2022.
+  AMI:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /aws/service/ami-windows-latest/Windows_Server-2022-English-Full-Base
+    Description: Select the AMI ID inside System Manager - Parameter Store (The default value is the latest Windows Server 2022 in Public Parameter Store)
+
+  Features:
+    Description: A COMMA seperated list of Windows features that you want to enable. Please refer to Get-WindowsFeature cmdlet to fill out this parameter.
+    Type: String
+    Default: RSAT-AD-Tools,RSAT-DNS-Server,web-server,web-webserver
+
+  InstanceType:
+    Type: String
+    Default: t3a.micro
+    AllowedValues:
+      - t3a.micro
+      - t3a.small
+      - t3a.medium
+    Description: Enter instance type for EC2 instance. The default value is t3a.micro.
+
+  SubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: Select existing Subnet for EC2.
+
+  SecurityGroupID:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: Select existing SecurityGroup for EC2.
+
+  SSHKeypair:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Select existing EC2 KeyPair for remote RDP.
+
+# User memasukkan nama EC2 yang akan digunakan melalui Tag.
+  EC2Name:
+    Type: String
+    Default: MyEC2
+    Description: Enter the name for this EC2.
+
+Resources:
+  EC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref AMI
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref EC2ProfileforDirectoryService
+      KeyName: !Ref SSHKeypair
+      NetworkInterfaces: 
+        - AssociatePublicIpAddress: true
+          DeviceIndex: "0"
+          GroupSet: 
+            - !Ref SecurityGroupID
+          SubnetId: !Ref SubnetID
+      UserData:
+        Fn::Base64:
+          Fn::Sub : |
+            <powershell>
+            Import-Module ServerManager
+            Install-WindowsFeature -Name  ${Features} -IncludeAllSubFeature -IncludeManagementTools
+            </powershell>
+      Tags:
+      - Key: Name
+        Value: !Sub Lab - ${EC2Name}
+      - Key: OS
+        Value: Windows Server
+
+  EIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      InstanceId: !Ref EC2
+      Tags: 
+      - Key: Name
+        Value: !Sub Lab - ${EC2Name} EIP
+
+  EC2RoleforDirectoryService:
+    Type: AWS::IAM::Role
+    Properties: 
+      AssumeRolePolicyDocument:
+        Statement: 
+          - Effect: Allow
+            Principal: 
+              Service:
+                - ec2.amazonaws.com
+            Action: 
+              - sts:AssumeRole
+      ManagedPolicyArns: 
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+        - arn:aws:iam::aws:policy/AmazonSSMDirectoryServiceAccess
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+      Path: "/"
+      Tags: 
+      - Key: Name
+        Value: !Sub Lab - ${EC2Name} Role
+  EC2ProfileforDirectoryService:
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      Path: "/"
+      Roles: 
+        - !Ref EC2RoleforDirectoryService
+
+Outputs:
+  EC2PublicDNS:
+    Description: Public DNS Endpoint of EC2
+    Value: !GetAtt EC2.PublicDnsName
+  FeaturesEnabled:
+    Value: !Ref Features
+    Description: Features enabled on this instance.
+  EC2PublicIP:
+    Description: Public IPv4 of EC2
+    Value: !GetAtt EC2.PublicIp
+  EC2PrivateIP:
+    Description: Private IPv4 of EC2
+    Value: !GetAtt EC2.PrivateIp

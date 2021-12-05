@@ -1,5 +1,5 @@
 Description: >
-  Membuat EC2 baru dengan settingan minimal.
+  Membuat Linux EC2 baru dengan settingan minimal.
 
 Resources:
 # Buat EC2 instance dengan pilihan AMI, InstanceType, UserData, dan Tag.

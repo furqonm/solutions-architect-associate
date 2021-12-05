@@ -1,5 +1,5 @@
 Description: >
-  Membuat EC2 baru dengan SecurityGroup dan ElasticIP. EC2 juga akan menggunakan Parameter (untuk InstanceType dan SSH Keypair) dan Mapping (untuk AMI ID).
+  Membuat Linux EC2 baru dengan SecurityGroup dan ElasticIP. EC2 juga akan menggunakan Parameter (untuk InstanceType dan SSH Keypair) dan Mapping (untuk AMI ID).
 
 Parameters:
   InstanceType:

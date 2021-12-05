@@ -1,12 +1,12 @@
 Description: >
-  Membuat EC2 yang terdaftar di SystemManager dengan menggunakan AMI Amazon Linux 2 terbaru yang sudah terinstall SSM agent, dan IAM Role yang memberikan permission ke SSM agent agar bisa dikontrol oleh AWS System Manager.
+  Membuat Linux EC2 yang terdaftar di SystemManager dengan menggunakan AMI Amazon Linux 2 terbaru yang sudah terinstall SSM agent, dan IAM Role yang memberikan permission ke SSM agent agar bisa dikontrol oleh AWS System Manager.
 
 Parameters:
 # User memilih System Manager - Parameter Store yang berisi AMI ID untuk EC2 instance, atau bisa menggunakan public Parameter Store yang disediakan oleh AWS yang berisi AMI ID milik Amazon Linux 2 terbaru. Harap gunakan AMI seperti Amazon Linux 2 yang sudah memiliki SSM agent terinstall didalamnya.
   AMI:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
-    Description: Select the AMI ID inside System Manager - Parameter Store (The default value is the latest Amazon Linux 2 in public Parameter Store).
+    Description: Select the Linux AMI ID inside System Manager - Parameter Store (The default value is the latest Amazon Linux 2 in public Parameter Store).
 
   InstanceType:
     Type: String
@@ -35,7 +35,7 @@ Parameters:
   ApplicationURL:
     Type: String
     Default: https://furqonmauladani.s3.amazonaws.com/package.zip
-    Description: Insert the URL where the software (package.zip) is located
+    Description: Insert the URL where the software (package.zip) is located.
 
 Resources:
   EC2:
@@ -74,6 +74,8 @@ Resources:
       Tags:
       - Key: Name
         Value: !Sub Lab - ${EC2Name}
+      - Key: OS
+        Value: Linux
 
   EIP:
     Type: AWS::EC2::EIP
