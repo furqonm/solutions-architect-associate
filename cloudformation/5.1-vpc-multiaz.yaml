@@ -2,11 +2,11 @@ Description: >
   Membuat VPC dengan masing-masing 1 public dan 1 private subnet dikedua Availability Zone. Didalamnya ada Internet Gateway, Route Table, Security Group.
 
 Parameters:
-# User memasukkan nama VPC yang akan digunakan oleh beberapa komponen didalam VPC melalui Tag.
+# User memasukkan nama VPC yang akan digunakan melalui Tag.
   VPCName:
     Description: Enter the name for this VPC
     Type: String
-    Default: VPC
+    Default: MyVPC
 
 # User memasukkan IP range yang nanti digunakan oleh VPC.
   VPCCIDR:
@@ -161,11 +161,14 @@ Resources:
         Value: !Sub Lab - ${VPCName} SecurityGroup
 
 Outputs:
+  SecurityGroupID:
+    Description: SecurityGroup ID
+    Value: !Ref SecurityGroup
   PublicSubnetsCIDR:
-    Description: A list of the public subnets CIDR
+    Description: List of the Public Subnets CIDR
 # Gabung 2 PublicSubnet ID yang dibuat kedalam satu Output dengan notasi koma sebagai penyambung.
     Value: !Join [ ",", [ !Ref PublicSubnet1, !Ref PublicSubnet2 ]]
   PrivateSubnetsCIDR:
 # Gabung 2 PrivateSubnet ID yang dibuat kedalam satu Output dengan notasi koma sebagai penyambung.
-    Description: A list of the private subnets CIDR
+    Description: List of the Public Subnets CIDR
     Value: !Join [ ",", [ !Ref PrivateSubnet1, !Ref PrivateSubnet2 ]]

@@ -82,11 +82,11 @@ Resources:
 # Ekstrak informasi EC2 instance yang dibuat. Public IPv4 atau public DNS-nya tetap berlaku, meskipun EC2-nya dimatikan dan dihidupkan karena EC2 menggunakan Elastic IP.
 Outputs:
   EC2PublicDNS:
-    Description: Public DNS Endpoint of EC2
     Value: !GetAtt EC2.PublicDnsName
+    Description: Public DNS Endpoint of EC2
   EC2PublicIP:
-    Description: Public IPv4 of EC2
     Value: !GetAtt EC2.PublicIp
+    Description: Public IPv4 of EC2
   EC2PrivateIP:
-    Description: Private IPv4 of EC2
     Value: !GetAtt EC2.PrivateIp
+    Description: Private IPv4 of EC2

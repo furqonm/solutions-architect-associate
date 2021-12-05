@@ -2,14 +2,23 @@ Description: >
   Membuat EC2 dimasing-masing VPC yang berbeda dengan memanfaatkan template lain (nested stack).
 
 Parameters:
+  EC2One:
+    Description: Please enter the name for first EC2 inside first VPC.
+    Type: String
+    Default: MyEC2-One
+  EC2Two:
+    Description: Please enter the name for second EC2 inside second VPC.
+    Type: String
+    Default: MyEC2-Two
   VPCOne:
-    Description: Please enter the name for first VPC
+    Description: Please enter the name for first VPC.
     Type: String
-    Default: MyVPC1
+    Default: MyFirstVPC
   VPCTwo:
-    Description: Please enter the name for second VPC
+    Description: Please enter the name for second VPC.
     Type: String
-    Default: MyVPC2
+    Default: MySecondVPC
+
   InstanceType:
     Type: String
     Default: t3a.micro
@@ -20,10 +29,10 @@ Parameters:
     Description: Select instance type for EC2 instance. The default value is t3a.micro.
 
 Resources:
-  VPC1:
+  FirstVPC:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://furqonmauladani.s3.amazonaws.com/6.1-vpc-multiaz.yaml
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/5.1-vpc-multiaz.yaml
       Parameters:
         VPCName: !Ref VPCOne
         VPCCIDR: 192.168.0.0/16
@@ -32,10 +41,10 @@ Resources:
         PublicSubnet2CIDR: 192.168.2.0/24
         PrivateSubnet2CIDR: 192.168.3.0/24
 
-  VPC2:
+  SecondVPC:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://furqonmauladani.s3.amazonaws.com/6.1-vpc-multiaz.yaml
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/5.1-vpc-multiaz.yaml
       Parameters:
         VPCName: !Ref VPCTwo
         VPCCIDR: 172.31.0.0/16
@@ -44,28 +53,34 @@ Resources:
         PublicSubnet2CIDR: 172.31.2.0/24
         PrivateSubnet2CIDR: 172.31.3.0/24
 
-  EC2One:
+  FirstEC2:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://furqonmauladani.s3.amazonaws.com/4-ec2-systemmanager.yaml
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/2.1-ssm-registered-linux.yaml
       Parameters:
+        EC2Name: !Ref EC2One
         InstanceType: !Ref InstanceType
-        SubnetID: !Select [0, !Split [",", !GetAtt [VPC1,Outputs.PublicSubnetsCIDR]]]
+        SubnetID: !Select [0, !Split [",", !GetAtt [FirstVPC,Outputs.PublicSubnetsCIDR]]]
+        SecurityGroupID: !GetAtt [FirstVPC,Outputs.SecurityGroupID]
+        ApplicationURL: https://furqonmauladani.s3.amazonaws.com/package.zip
 
-  EC2Two:
+  SecondEC2:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://furqonmauladani.s3.amazonaws.com/4-ec2-systemmanager.yaml
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/2.1-ssm-registered-linux.yaml
       Parameters:
+        EC2Name: !Ref EC2Two
         InstanceType: !Ref InstanceType
-        SubnetID: !Select [0, !Split [",", !GetAtt [VPC2,Outputs.PublicSubnetsCIDR]]]
+        SubnetID: !Select [0, !Split [",", !GetAtt [SecondVPC,Outputs.PublicSubnetsCIDR]]]
+        SecurityGroupID: !GetAtt [SecondVPC,Outputs.SecurityGroupID]
+        ApplicationURL: https://furqonmauladani.s3.amazonaws.com/package.zip
 
 Outputs:
-  PublicDNSofEC2One:
-    Description: Public DNS Endpoint of EC2One
+  PublicDNSofFirstEC2:
+    Description: Public DNS Endpoint of First EC2
     Value:
-      Fn::GetAtt: [EC2One,Outputs.EC2PublicDNS]
-  PublicDNSofEC2Two:
-    Description: Public DNS Endpoint of EC2Two
+      Fn::GetAtt: [FirstEC2,Outputs.EC2PublicDNS]
+  PublicDNSofSecondEC2:
+    Description: Public DNS Endpoint of Second EC2
     Value:
-      Fn::GetAtt: [EC2Two,Outputs.EC2PublicDNS]
+      Fn::GetAtt: [SecondEC2,Outputs.EC2PublicDNS]
