@@ -1,6 +1,6 @@
 Description: >
   Membuat Linux EC2 baru dengan SecurityGroup dan ElasticIP. EC2 juga akan menggunakan Parameter (untuk InstanceType dan SSH Keypair) dan Mapping (untuk AMI ID).
-
+#----------------------------------------------------------------------------------------#
 Parameters:
   InstanceType:
     Type: String
@@ -14,7 +14,7 @@ Parameters:
   SSHKeypair:
     Type: AWS::EC2::KeyPair::KeyName
     Description: Select existing EC2 KeyPair for remote SSH.
-
+#----------------------------------------------------------------------------------------#
 Resources:
   EC2:
     Type: AWS::EC2::Instance
@@ -78,9 +78,9 @@ Resources:
       Tags:
       - Key: Name
         Value: MySecurityGroup
-
-# Ekstrak informasi EC2 instance yang dibuat. Public IPv4 atau public DNS-nya tetap berlaku, meskipun EC2-nya dimatikan dan dihidupkan karena EC2 menggunakan Elastic IP.
+#----------------------------------------------------------------------------------------#
 Outputs:
+# Ekstrak informasi EC2 instance yang dibuat. Public IPv4 atau public DNS-nya tetap berlaku, meskipun EC2-nya dimatikan dan dihidupkan karena EC2 menggunakan Elastic IP.
   EC2PublicDNS:
     Value: !GetAtt EC2.PublicDnsName
     Description: Public DNS Endpoint of EC2

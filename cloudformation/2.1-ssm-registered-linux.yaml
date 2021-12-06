@@ -1,8 +1,8 @@
 Description: >
-  Membuat Linux EC2 yang terdaftar di SystemManager dengan menggunakan AMI Amazon Linux 2 terbaru yang sudah terinstall SSM agent, dan IAM Role yang memberikan permission ke SSM agent agar bisa dikontrol oleh AWS System Manager.
-
+  Membuat Linux EC2 dengan menggunakan AMI Amazon Linux 2 terbaru yang terdaftar di System Manager.
+#----------------------------------------------------------------------------------------#
 Parameters:
-# User memilih System Manager - Parameter Store yang berisi AMI ID untuk EC2 instance, atau bisa menggunakan public Parameter Store yang disediakan oleh AWS yang berisi AMI ID milik Amazon Linux 2 terbaru. Harap gunakan AMI seperti Amazon Linux 2 yang sudah memiliki SSM agent terinstall didalamnya.
+# User memilih System Manager - Parameter Store yang berisi AMI ID untuk EC2 instance, atau bisa menggunakan public Parameter Store yang berisi AMI ID Amazon Linux 2 terbaru. Harap gunakan AMI seperti Amazon Linux 2 yang sudah memiliki SSM agent terpasang didalamnya.
   AMI:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
@@ -36,7 +36,7 @@ Parameters:
     Type: String
     Default: https://furqonmauladani.s3.amazonaws.com/package.zip
     Description: Insert the URL where the software (package.zip) is located.
-
+#----------------------------------------------------------------------------------------#
 Resources:
   EC2:
     Type: AWS::EC2::Instance
@@ -44,7 +44,7 @@ Resources:
 # Gunakan AMI sesuai dengan value dari Parameter Store.
       ImageId: !Ref AMI
       InstanceType: !Ref InstanceType
-      NetworkInterfaces: 
+      NetworkInterfaces:
         - AssociatePublicIpAddress: true
           DeviceIndex: "0"
           GroupSet: 
@@ -53,8 +53,8 @@ Resources:
 # Gunakan InstanceProfile yang terhubung dengan IAM Role yang dibuat.
       IamInstanceProfile: !Ref EC2ProfileforSSM
       UserData:
-# UserData bisa menggunakan variable dari parameter dengan notasi ${parameter} memanfaatkan Fn::Sub atau !Sub.
         Fn::Base64:
+# UserData bisa menggunakan variable dari parameter dengan notasi ${parameter} memanfaatkan Fn::Sub atau !Sub.
           Fn::Sub: |
             #!/bin/bash
             yum update -y
@@ -110,7 +110,7 @@ Resources:
       Path: "/"
       Roles: 
         - !Ref EC2RoleforSSM
-
+#----------------------------------------------------------------------------------------#
 Outputs:
   EC2PublicDNS:
     Value: !GetAtt EC2.PublicDnsName

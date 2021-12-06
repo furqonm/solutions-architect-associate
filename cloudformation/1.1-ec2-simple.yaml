@@ -1,6 +1,6 @@
 Description: >
   Membuat Linux EC2 baru dengan settingan minimal.
-
+#----------------------------------------------------------------------------------------#
 Resources:
 # Buat EC2 instance dengan pilihan AMI, InstanceType, UserData, dan Tag.
   EC2:
@@ -22,9 +22,9 @@ Resources:
         Value: MyEC2
       - Key: OS
         Value: Amazon Linux 2
-
-# Ekstrak informasi EC2 instance yang dibuat. Namun apabila EC2 instance dimatikan, maka public IPv4 atau public DNS-nya akan tidak berlaku lagi karena berubah saat EC2-nya dihidupkan kembali.
+#----------------------------------------------------------------------------------------#
 Outputs:
+# Ekstrak informasi EC2 instance yang dibuat. Namun apabila EC2 instance dimatikan, maka public IPv4 atau public DNS-nya akan tidak berlaku lagi karena berubah saat EC2-nya dihidupkan kembali.
   EC2PublicDNS:
     Value: !GetAtt EC2.PublicDnsName
     Description: Public DNS Endpoint of EC2

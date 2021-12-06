@@ -1,6 +1,6 @@
 Description: >
   Membuat EC2 dimasing-masing VPC yang berbeda dengan memanfaatkan template lain (nested stack).
-
+#----------------------------------------------------------------------------------------#
 Parameters:
   EC2One:
     Description: Please enter the name for first EC2 inside first VPC.
@@ -26,7 +26,7 @@ Parameters:
       - t3a.micro
       - t3a.small
     Description: Select instance type for EC2 instance. The default value is t3a.micro.
-
+#----------------------------------------------------------------------------------------#
 Resources:
   FirstVPC:
     Type: AWS::CloudFormation::Stack
@@ -73,7 +73,7 @@ Resources:
         SubnetID: !Select [0, !Split [",", !GetAtt [SecondVPC,Outputs.PublicSubnetsCIDR]]]
         SecurityGroupID: !GetAtt [SecondVPC,Outputs.SecurityGroupID]
         ApplicationURL: https://furqonmauladani.s3.amazonaws.com/package.zip
-
+#----------------------------------------------------------------------------------------#
 Outputs:
   PublicDNSofFirstEC2:
     Description: Public DNS endpoint of first EC2

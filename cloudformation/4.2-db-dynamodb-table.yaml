@@ -1,6 +1,6 @@
 Description: >
   Membuat DynamoDB table sederhana.
-
+#----------------------------------------------------------------------------------------#
 Parameters:
   HashKey:
     Description: Name of hashkey (partition key)
@@ -42,7 +42,7 @@ Parameters:
     MinValue: 5
     MaxValue: 10000
     ConstraintDescription: Must be between 5 and 10000
-
+#----------------------------------------------------------------------------------------#
 Resources:
   DynamoDBTable:
     Type: AWS::DynamoDB::Table
@@ -60,6 +60,7 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: !Ref ReadCapacityUnits
         WriteCapacityUnits: !Ref WriteCapacityUnits
+#----------------------------------------------------------------------------------------#
 Outputs:
   TableARN:
     Value: !GetAtt DynamoDBTable.Arn

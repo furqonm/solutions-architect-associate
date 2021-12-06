@@ -1,6 +1,6 @@
 Description: >
   Membuat S3 bucket dengan fitur static website.
-
+#----------------------------------------------------------------------------------------#
 Resources:
 # Buat S3 bucket dengan fitur static website dan bucket policy.
   S3Bucket:
@@ -26,7 +26,7 @@ Resources:
 # Menggabung beberapa text untuk menampilkan ARN milik S3 bucket.
               Fn::Join: [ '', [ 'arn:aws:s3:::', !Ref S3Bucket, '/*']]
       Bucket: !Ref S3Bucket
-
+#----------------------------------------------------------------------------------------#
 Outputs:
 # Menampilkan URL dari static website.
   WebsiteURL:
