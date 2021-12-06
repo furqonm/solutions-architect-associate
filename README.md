@@ -14,23 +14,22 @@ _[DISCLAIMER] Links dan materials yang ada disini dipergunakan untuk tambahan ma
 - [Exam Readiness: AWS Certified Solutions Architect – Associate (Digital)](https://explore.skillbuilder.aws/learn/course/internal/view/elearning/125/exam-readiness-aws-certified-solutions-architect-associate-digital/enroll)
 > Video latihan persiapan ujian SAA-C02 dari AWS. Materi berisikan eksplorasi topik yang keluar di ujian dan beberapa contoh soal ujian. Login menggunakan akun Amazon, bukan akun AWS.
 - [AWS Certified Solutions Architect Associate Cheat Sheets](https://digitalcloud.training/certification-training/aws-solutions-architect-associate) **(Unofficial)**
-- [AWS Cheat Sheets](https://tutorialsdojo.com/aws-cheat-sheets/) **(Unofficial)**
 > Catatan berisikan key point service-service di AWS.
 
 ## Hands on Lab
 ### 1. Video Demo Lab
-- [AWS Technical Essentials - v4](http://bit.ly/tesslabs)
 - [AWS Technical Essentials - v5](http://bit.ly/tesslabs5)
-- [Architecting on AWS - v6.8](http://bit.ly/arclabs)
+- [AWS Technical Essentials - v4](http://bit.ly/tesslabs)
 - [Architecting on AWS - v7.0](http://bit.ly/arclabv7)
+- [Architecting on AWS - v6.8](http://bit.ly/arclabs)
 > Video rekaman pengerjaan lab yang bisa kita tonton buat ngerefresh apa yang pernah kita kerjakan dulu.
 
-## 2. Free Labs
+### 2. Free Labs
 - [Amazon Qwiklabs](https://amazon.qwiklabs.com/catalog?price%5B%5D=free)
 > Kumpulan lab AWS gratis yang disediakan oleh Qwiklabs.
 - [Well-Architected Labs](https://www.wellarchitectedlabs.com)
 > Kumpulan panduan lab yang dikerjakan diakun AWS kita. Harap berhati-hati akan biaya pengeluaran ketika melakukan langkah-langkahnya karena lab ini dikerjakan diakun AWS. Perhatikan langkah terakhir "Tear Down" yang menjelaskan apa yang harus diterminate diakun kita.
 
-## 3. Step-by-Step Tutorials
+### 3. Step-by-Step Tutorials
 https://aws.amazon.com/getting-started/hands-on
 > Langkah-langkah dalam menerapkan beberapa arsitektur di AWS.
