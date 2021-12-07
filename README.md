@@ -22,18 +22,22 @@ _[DISCLAIMER] Links dan materials yang ada disini dipergunakan untuk tambahan ma
     > Catatan berisikan key point service-service di AWS.
 
 ### 3. Exam Readiness
-- [AWS Certified Solutions Architect - Associate Sample Questions](https://d1.awsstatic.com/training-and-certification/docs-sa-assoc/AWS-Certified-Solutions-Architect-Associate_Sample-Questions.pdf)
-
-    > Beberapa contoh soal untuk mengenali format pertanyaan ujian SAA-C02 nanti.
-
 - [Exam Readiness: AWS Certified Solutions Architect – Associate (Digital)](https://explore.skillbuilder.aws/learn/course/internal/view/elearning/125/exam-readiness-aws-certified-solutions-architect-associate-digital/enroll)
 
     > E-learning untuk latihan persiapan ujian SAA-C02 dari AWS. Materi berisikan eksplorasi topik yang keluar di ujian dan beberapa contoh soal ujian. Untuk mencoba bisa mendaftar menggunakan akun Amazon kita, bukan akun AWS.
 
+- [AWS Certified Solutions Architect - Associate Sample Questions](https://d1.awsstatic.com/training-and-certification/docs-sa-assoc/AWS-Certified-Solutions-Architect-Associate_Sample-Questions.pdf)
+
+    > Beberapa contoh soal untuk mengenali format pertanyaan ujian SAA-C02 nanti.
+
+- [AWS Certification Official Practice Question Sets (English)](https://explore.skillbuilder.aws/learn/course/internal/view/elearning/9153/aws-certification-official-practice-question-sets-english)
+
+    > Simulasi ujian via BenchPrep untuk mengenali format pertanyaan ujian SAA-C02 nanti. Untuk mencoba bisa mendaftar menggunakan akun Amazon kita, bukan akun AWS.
+
 ## Hands on Lab
 ### 1. Video Demo Lab
 - [AWS Technical Essentials v5](http://bit.ly/tesslabs5), untuk versi lama [disini](http://bit.ly/tesslabs)
-- [Architecting on AWS v7.0](http://bit.ly/arclabv7), untuk versi lama [disini](http://bit.ly/arclabs)
+- [Architecting on AWS v7](http://bit.ly/arclabv7), untuk versi lama [disini](http://bit.ly/arclabs)
 
     > Video rekaman pengerjaan lab yang bisa kita tonton buat ngerefresh apa yang pernah kita kerjakan dulu.
 
