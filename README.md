@@ -1,7 +1,8 @@
 # Preparation for AWS Certified Solutions Architect – Associate (SAA-C02)
 _[DISCLAIMER] Links dan materials yang ada disini dipergunakan untuk tambahan materi belajar. Sumber belajar yang saya dokumentasikan sendiri ini tidak merepresentasikan informasi resmi dari pihak AWS, meskipun beberapa link dan material bersumber resmi dari AWS._
 
-## Additional Material
+---
+## Exam Preparation Materials
 ### 1. AWS Course: Fundamental Level
 - [AWS Basics for Beginners - Full Course](https://www.youtube.com/watch?v=ulprqHHWlng&ab_channel=freeCodeCamp.org) **(Unofficial)**
 
@@ -21,7 +22,7 @@ _[DISCLAIMER] Links dan materials yang ada disini dipergunakan untuk tambahan ma
 
     > Catatan berisikan key point service-service di AWS.
 
-### 3. Exam Readiness
+### 4. Exam Readiness
 - [Exam Readiness: AWS Certified Solutions Architect – Associate (Digital)](https://explore.skillbuilder.aws/learn/course/internal/view/elearning/125/exam-readiness-aws-certified-solutions-architect-associate-digital/enroll)
 
     > E-learning untuk latihan persiapan ujian SAA-C02 dari AWS. Materi berisikan eksplorasi topik yang keluar di ujian dan beberapa contoh soal ujian. Untuk mencoba bisa mendaftar menggunakan akun Amazon kita, bukan akun AWS.
@@ -37,8 +38,8 @@ _[DISCLAIMER] Links dan materials yang ada disini dipergunakan untuk tambahan ma
 - [How to Get Official AWS Practice Exams for Free](https://www.youtube.com/watch?v=fR-sjK2u6D4&ab_channel=SkillFillip)
 
     > Cara mendapatkan simulasi ujian gratis via PSI Online untuk mengenali format pertanyaan ujian SAA-C02 nanti. Untuk mencoba syaratnya *harus lulus minimal satu ujian AWS* apapun.
-
-## Hands on Lab
+---
+## Hands-on Labs
 ### 1. Video Demo Lab
 - [AWS Technical Essentials v5](http://bit.ly/tesslabs5), untuk versi lama [disini](http://bit.ly/tesslabs)
 - [Architecting on AWS v7](http://bit.ly/arclabv7), untuk versi lama [disini](http://bit.ly/arclabs)
