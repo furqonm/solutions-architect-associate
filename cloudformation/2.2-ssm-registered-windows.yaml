@@ -14,6 +14,7 @@ Parameters:
     Type: String
     Default: RSAT-AD-Tools,RSAT-DNS-Server,web-server
 
+# User memilih InstanceType yang nanti digunakan oleh EC2 instance, atau bisa menggunakan default value.
   InstanceType:
     Type: String
     Default: t3a.micro
@@ -21,25 +22,26 @@ Parameters:
       - t3a.micro
       - t3a.small
       - t3a.medium
-    Description: Enter instance type for EC2 instance. The default value is t3a.micro.
+    Description: Select instance type for EC2 instance. The default value is t3a.micro.
 
+# User mengatur konfigurasi Subnet dan Security Group.
   SubnetID:
     Type: AWS::EC2::Subnet::Id
     Description: Select existing Subnet for EC2.
-
   SecurityGroupID:
     Type: AWS::EC2::SecurityGroup::Id
     Description: Select existing SecurityGroup for EC2.
-
-  SSHKeypair:
-    Type: AWS::EC2::KeyPair::KeyName
-    Description: Select existing EC2 KeyPair for remote RDP.
 
 # User memasukkan nama EC2 yang akan digunakan melalui Tag.
   EC2Name:
     Type: String
     Default: MyEC2
     Description: Enter the name for this EC2.
+
+# User memilih SSH Keypair untuk remote ke EC2 instance.
+  SSHKeypair:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Select existing EC2 KeyPair for remote RDP.
 #----------------------------------------------------------------------------------------#
 Resources:
   EC2:
@@ -56,7 +58,7 @@ Resources:
           GroupSet: 
             - !Ref SecurityGroupID
           SubnetId: !Ref SubnetID
-# Gunakan InstanceProfile yang terhubung dengan IAM Role yang dibuat.
+# Gunakan InstanceProfile yang terhubung dengan IAM Role yang dibuat (artinya EC2 memakai IAM Role melalui InstanceProfile).
       IamInstanceProfile: !Ref EC2ProfileforDirectoryService
       UserData:
         Fn::Base64:

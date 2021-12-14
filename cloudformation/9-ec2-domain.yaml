@@ -1,23 +1,20 @@
 Description: >
-  Membuat EC2 yang terdaftar di SystemManager dengan menggunakan AMI Amazon Linux 2 terbaru yang sudah terinstall SSM agent, dan IAM Role yang memberikan permission ke SSM agent agar bisa dikontrol oleh AWS System Manager. EC2 juga memiliki SecurityGroup dan ElasticIP.
-
+  Membuat Windows Server EC2 dengan menggunakan AMI Windows Server 2022 terbaru yang terdaftar di System Manager dan akses ke Directory Service. Directory Service yang merupakan managed Microsoft Active Directory juga akan dibuat.
+#----------------------------------------------------------------------------------------#
 Parameters:
-# User memilih System Manager - Parameter Store yang berisi AMI ID untuk EC2 instance, atau bisa menggunakan default value dari Public Parameter Store dari AWS yang berisikan latest AMI ID untuk Windows Server 2022.
+# User memilih System Manager - Parameter Store yang berisi AMI ID untuk EC2 instance, atau bisa menggunakan public Parameter Store yang berisi AMI ID Windows Server 2022. Harap gunakan AMI seperti Windows Server 2022 yang sudah memiliki SSM agent terpasang didalamnya.
   AMI:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /aws/service/ami-windows-latest/Windows_Server-2022-English-Full-Base
-    Description: Select the AMI ID inside System Manager - Parameter Store (The default value is the latest Windows Server 2022 in Public Parameter Store)
+    Description: Select the Windows AMI ID inside System Manager - Parameter Store (The default value is the latest Windows Server 2022 in public Parameter Store)
 
+# User memasukkan beberapa fitur dan role Windows yang akan dipasang di EC2.
   Features:
     Description: A COMMA seperated list of Windows features that you want to enable. Please refer to Get-WindowsFeature cmdlet to fill out this parameter.
     Type: String
-    Default: RSAT-AD-Tools,RSAT-DNS-Server
+    Default: RSAT-AD-Tools,RSAT-DNS-Server,web-server
 
-  ActiveDirectoryName:
-    Description: Active Directory name parameter.
-    Type: String
-    Default: trainocate.nusa
-
+# User memilih InstanceType yang nanti digunakan oleh EC2 instance, atau bisa menggunakan default value.
   InstanceType:
     Type: String
     Default: t3a.micro
@@ -27,48 +24,82 @@ Parameters:
       - t3a.medium
     Description: Enter instance type for EC2 instance. The default value is t3a.micro.
 
-  SSHKey:
+# User mengatur konfigurasi VPC, Subnet dan Security Group.
+  VPCID:
+    Type: AWS::EC2::VPC::Id
+    Description: Select the VPC ID
+  SubnetID1:
+    Type: AWS::EC2::Subnet::Id
+    Description: Select the first Private Subnet
+  SubnetID2:
+    Type: AWS::EC2::Subnet::Id
+    Description: Select the second Private Subnet
+  SecurityGroupID:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: Select existing SecurityGroup for EC2.
+
+# User memilih SSH Keypair untuk remote ke EC2 instance.
+  SSHKeypair:
     Type: AWS::EC2::KeyPair::KeyName
     Description: Select existing EC2 KeyPair for remote RDP.
 
-  VPC:
-    Type: AWS::EC2::VPC::Id
-    Description: Select the VPC ID
-  PrivateSubnet1:
-    Type: AWS::EC2::Subnet::Id
-    Description: Select the first Private Subnet
-  PrivateSubnet2:
-    Type: AWS::EC2::Subnet::Id
-    Description: Select the second Private Subnet
+# User memasukkan nama EC2 yang akan digunakan melalui Tag.
+  EC2Name:
+    Type: String
+    Default: MyDirectory
+    Description: Enter the name for this EC2 and Directory Service.
 
+# User memasukkan nama domain untuk Microsoft Active Directory di Directory Service.
+  ActiveDirectoryName:
+    Description: Active Directory name parameter.
+    Type: String
+    Default: trainocate.nusa
+#----------------------------------------------------------------------------------------#
 Resources:
+# Buat Directory Service yang merupakan managed Microsoft Active Directory.
   MyDirectory: 
     Type: AWS::DirectoryService::MicrosoftAD
     Properties: 
         Name: !Ref ActiveDirectoryName
         Edition: Standard
-        Password: '{{resolve:ssm-secure:/microsoft/active-directory/password:1}}'
+        Password: '{{resolve:ssm-secure:/microsoft/active-directory/password}}'
         VpcSettings: 
           SubnetIds: 
-            - !Ref PrivateSubnet1
-            - !Ref PrivateSubnet2
-          VpcId: !Ref VPC
+            - !Ref SubnetID1
+            - !Ref SubnetID2
+          VpcId: !Ref VPCID
 
-  DemoEC2:
+# Buat EC2 instance dengan pilihan AMI, InstanceType, Keypair, Network Interface, dan konfigurasi lainnya.
+  EC2:
     Type: AWS::EC2::Instance
     Properties:
+# Gunakan AMI sesuai dengan value dari Parameter Store.
       ImageId: !Ref AMI
       InstanceType: !Ref InstanceType
-      IamInstanceProfile: !Ref DemoEC2ProfileforDirectoryService
-      KeyName: !Ref SSHKey
-      SecurityGroups:
-        - !Ref DemoSecurityGroup
+      KeyName: !Ref SSHKeypair
+# Mengatur Elastic Network Interface dibuat di Subnet mana dan SecurityGroup-nya.
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: "0"
+          GroupSet: 
+            - !Ref SecurityGroupID
+          SubnetId: !Ref SubnetID1
+# Gunakan InstanceProfile yang terhubung dengan IAM Role yang dibuat (artinya EC2 memakai IAM Role melalui InstanceProfile).
+      IamInstanceProfile: !Ref EC2ProfileforDirectoryService
       UserData:
+# Fn::Base64 untuk mengirimkan data yang diencode kedalam EC2 instance sebagai UserData.
         Fn::Base64:
+# UserData bisa menggunakan variable dari parameter dengan notasi ${parameter} memanfaatkan Fn::Sub atau !Sub. Notasi | digunakan menggabungkan beberapa baris kalimat jika isinya terlalu panjang.
           Fn::Sub : |
             <powershell>
+            Import-Module ServerManager
             Install-WindowsFeature -Name  ${Features} -IncludeAllSubFeature -IncludeManagementTools
             </powershell>
+      Tags:
+      - Key: Name
+        Value: !Sub Lab - ${EC2Name}
+      - Key: OS
+        Value: Windows Server
       SsmAssociations:
       - DocumentName: !Ref JoinADDocument
         AssociationParameters:
@@ -82,11 +113,6 @@ Resources:
           Value: 
           - !Select [0, !GetAtt MyDirectory.DnsIpAddresses]
           - !Select [1, !GetAtt MyDirectory.DnsIpAddresses]
-      Tags:
-      - Key: Name
-        Value: DemoEC2Windows
-      - Key: OS
-        Value: Latest Windows Server 2022
 
   JoinADDocument:
     Type: AWS::SSM::Document
@@ -113,32 +139,19 @@ Resources:
               directoryName: "{{ directoryName }}"
               dnsIpAddresses: "{{ dnsIpAddresses }}"
 
-  DemoEIP:
+# Buat ElasticIP dan pasang ke EC2 instance yang dibuat.
+  EIP:
     Type: AWS::EC2::EIP
     Properties:
-      InstanceId: !Ref DemoEC2
+      InstanceId: !Ref EC2
       Tags: 
       - Key: Name
-        Value: DemoEIP
-  
-  DemoSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Allow all IP address to SSH and HTTP
-      SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: 80
-        ToPort: 80
-        CidrIp: 0.0.0.0/0
-      - IpProtocol: tcp
-        FromPort: 3389
-        ToPort: 3389
-        CidrIp: 0.0.0.0/0
-      Tags:
-      - Key: Name
-        Value: DemoSecurityGroup
+        Value: !Sub Lab - ${EC2Name} EIP
 
-  DemoEC2RoleforDirectoryService:
+# Buat IAM Role yang membolehkan:
+# 1. SSM agent di EC2 bisa dikontrol oleh AWS System Manager.
+# 2. Akses ke Directory Service (managed Microsoft Active Directory).
+  EC2RoleforDirectoryService:
     Type: AWS::IAM::Role
     Properties: 
       AssumeRolePolicyDocument:
@@ -152,27 +165,42 @@ Resources:
       ManagedPolicyArns: 
         - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
         - arn:aws:iam::aws:policy/AmazonSSMDirectoryServiceAccess
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
       Path: "/"
       Tags: 
       - Key: Name
-        Value: DemoEC2RoleforDirectoryService
-  DemoEC2ProfileforDirectoryService:
+        Value: !Sub Lab - ${EC2Name} Role
+# Buat InstanceProfile yang terhubung dengan IAM Role. IAM Role tidak akan dipasang secara langsung ke EC2 instance, melainkan InstanceProfile inilah yang akan dipasang.
+  EC2ProfileforDirectoryService:
     Type: AWS::IAM::InstanceProfile
     Properties: 
       Path: "/"
       Roles: 
-        - !Ref DemoEC2RoleforDirectoryService
-
+        - !Ref EC2RoleforDirectoryService
+#----------------------------------------------------------------------------------------#
 Outputs:
+# Ekstrak informasi EC2 instance yang dibuat.
   EC2PublicDNS:
     Description: Public DNS Endpoint of EC2
-    Value: !GetAtt DemoEC2.PublicDnsName
+    Value: !GetAtt EC2.PublicDnsName
   FeaturesEnabled:
     Value: !Ref Features
-    Description: Features enabled on this instance.
+    Description: Features enabled on this instance
+  EC2PublicIP:
+    Description: Public IPv4 of EC2
+    Value: !GetAtt EC2.PublicIp
+  EC2PrivateIP:
+    Description: Private IPv4 of EC2
+    Value: !GetAtt EC2.PrivateIp
+# Ekstrak informasi Directory Service yang dibuat.
   DirectoryIPAddress1:
     Description: The first IP address for a directory
     Value: !Select [0, !GetAtt MyDirectory.DnsIpAddresses]
   DirectoryIPAddress2:
     Description: The second IP address for a directory
     Value: !Select [1, !GetAtt MyDirectory.DnsIpAddresses]
+  RemoteEC2:
+    Value:
+# Menggabung beberapa text untuk menampilkan link untuk remote via System Manager - Session Manager.
+      Fn::Join: [ "", [ "https://console.aws.amazon.com/systems-manager/session-manager/", !Ref EC2, "?region=", !Ref "AWS::Region" ]]
+    Description: Remote EC2 via System Manager - Session Manager

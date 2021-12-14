@@ -8,6 +8,7 @@ Parameters:
     Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
     Description: Select the Linux AMI ID inside System Manager - Parameter Store (The default value is the latest Amazon Linux 2 in public Parameter Store).
 
+# User memilih InstanceType yang nanti digunakan oleh EC2 instance, atau bisa menggunakan default value.
   InstanceType:
     Type: String
     Default: t3a.micro
@@ -17,10 +18,10 @@ Parameters:
       - t3a.small
     Description: Select instance type for EC2 instance. The default value is t3a.micro.
 
+# User mengatur konfigurasi Subnet dan Security Group.
   SubnetID:
     Type: AWS::EC2::Subnet::Id
     Description: Select existing Subnet for EC2.
-
   SecurityGroupID:
     Type: AWS::EC2::SecurityGroup::Id
     Description: Select existing SecurityGroup for EC2.
@@ -50,7 +51,7 @@ Resources:
           GroupSet: 
             - !Ref SecurityGroupID
           SubnetId: !Ref SubnetID
-# Gunakan InstanceProfile yang terhubung dengan IAM Role yang dibuat.
+# Gunakan InstanceProfile yang terhubung dengan IAM Role yang dibuat (artinya EC2 memakai IAM Role melalui InstanceProfile).
       IamInstanceProfile: !Ref EC2ProfileforSSM
       UserData:
         Fn::Base64:
@@ -88,7 +89,7 @@ Resources:
 # Buat IAM Role yang membolehkan agar SSM agent di EC2 bisa dikontrol oleh AWS System Manager.
   EC2RoleforSSM:
     Type: AWS::IAM::Role
-    Properties: 
+    Properties:
       AssumeRolePolicyDocument: 
         Statement: 
           - Effect: Allow
