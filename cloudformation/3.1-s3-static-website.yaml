@@ -1,17 +1,23 @@
 Description: >
-  Membuat S3 bucket dengan fitur static website.
+  Membuat S3 bucket dengan fitur static website. Setelah bucket dibuat masukkan file untuk website, seperti html, css, js, jpg, atau lainnya. Minimal bucket diisikan index.html dan error.html.
+
 #----------------------------------------------------------------------------------------#
 Resources:
 # Buat S3 bucket dengan fitur static website dan bucket policy.
   S3Bucket:
     Type: AWS::S3::Bucket
     Properties:
+# Atur bucket menjadi public karena digunakan untuk website.
       AccessControl: PublicRead
 # Mengaktifkan fitur static website.
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: error.html
-# Menerapkan bucket policy untuk mengizinkan akses ke bucket untuk siapapun.
+      Tags: 
+      - Key: Name
+        Value: MyS3
+
+# Menerapkan bucket policy untuk mengizinkan akses ke objek didalam bucket untuk siapapun.
   BucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -20,15 +26,18 @@ Resources:
         Statement:
           - Sid: AllowDownloadObject
             Effect: Allow
-            Principal: '*'
-            Action: 's3:GetObject'
+            Principal: "*"
+            Action: "s3:GetObject"
             Resource:
 # Menggabung beberapa text untuk menampilkan ARN milik S3 bucket.
-              Fn::Join: [ '', [ 'arn:aws:s3:::', !Ref S3Bucket, '/*']]
-      Bucket: !Ref S3Bucket
+              Fn::Join: [ "", [ "arn:aws:s3:::", Ref: S3Bucket, "/*"]]
+      Bucket:
+        Ref: S3Bucket
+
 #----------------------------------------------------------------------------------------#
 Outputs:
 # Menampilkan URL dari static website.
   WebsiteURL:
-    Value: !GetAtt S3Bucket.WebsiteURL
+    Value:
+      Fn::GetAtt: S3Bucket.WebsiteURL
     Description: Website URL hosted on S3

@@ -1,5 +1,6 @@
 Description: >
-  Membuat Linux EC2 baru dengan settingan minimal.
+  Membuat Linux EC2 baru dengan pengaturan minimal.
+
 #----------------------------------------------------------------------------------------#
 Resources:
 # Buat EC2 instance dengan pilihan AMI, InstanceType, UserData, dan Tag.
@@ -7,7 +8,7 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: ami-04902260ca3d33422
-      InstanceType: t3a.micro
+      InstanceType: t3.micro
       UserData:
 # Fn::Base64 untuk mengirimkan data yang diencode kedalam EC2 instance sebagai UserData. Notasi | digunakan menggabungkan beberapa baris kalimat jika isinya terlalu panjang.
         Fn::Base64: |
@@ -22,15 +23,21 @@ Resources:
         Value: MyEC2
       - Key: OS
         Value: Amazon Linux 2
+
 #----------------------------------------------------------------------------------------#
 Outputs:
-# Ekstrak informasi EC2 instance yang dibuat. Namun apabila EC2 instance dimatikan, maka public IPv4 atau public DNS-nya akan tidak berlaku lagi karena berubah saat EC2-nya dihidupkan kembali.
+# Ekstrak informasi EC2 instance yang dibuat. Yang perlu diperhatikan ketika EC2 instance dimatikan, maka public IPv4 atau public DNS-nya akan tidak berlaku lagi karena dua-duanya akan berubah saat EC2-nya dihidupkan kembali.
   EC2PublicDNS:
-    Value: !GetAtt EC2.PublicDnsName
+    Value:
+      Fn::GetAtt: EC2.PublicDnsName
     Description: Public DNS Endpoint of EC2
+
   EC2PublicIP:
-    Value: !GetAtt EC2.PublicIp
+    Value:
+      Fn::GetAtt: EC2.PublicIp
     Description: Public IPv4 of EC2
+
   EC2PrivateIP:
-    Value: !GetAtt EC2.PrivateIp
+    Value:
+      Fn::GetAtt: EC2.PrivateIp
     Description: Private IPv4 of EC2

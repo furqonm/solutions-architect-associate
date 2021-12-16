@@ -1,65 +1,72 @@
 Description: >
-  Membuat Windows Server EC2 dengan menggunakan AMI Windows Server 2022 terbaru yang terdaftar di System Manager dan akses ke Directory Service.
+  Membuat Windows Server EC2 dengan menggunakan AMI Windows Server 2022 terbaru yang terdaftar di System Manager.
 #----------------------------------------------------------------------------------------#
 Parameters:
 # User memilih System Manager - Parameter Store yang berisi AMI ID untuk EC2 instance, atau bisa menggunakan public Parameter Store yang berisi AMI ID Windows Server 2022. Harap gunakan AMI seperti Windows Server 2022 yang sudah memiliki SSM agent terpasang didalamnya.
   AMI:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /aws/service/ami-windows-latest/Windows_Server-2022-English-Full-Base
-    Description: Select the Windows AMI ID inside System Manager - Parameter Store (The default value is the latest Windows Server 2022 in public Parameter Store)
+    Description: Select the Windows AMI ID inside System Manager - Parameter Store (The default value is the latest Windows Server 2022 in public Parameter Store).
 
-# User memasukkan beberapa fitur dan role Windows yang akan dipasang di EC2.
+# User memasukkan beberapa fitur dan role Windows yang akan dipasang di EC2 instance.
   Features:
-    Description: A COMMA seperated list of Windows features that you want to enable. Please refer to Get-WindowsFeature cmdlet to fill out this parameter.
     Type: String
-    Default: RSAT-AD-Tools,RSAT-DNS-Server,web-server
+    Default: RSAT-AD-Tools,RSAT-DNS-Server
+    Description: A COMMA seperated list of Windows features that you want to enable. Please refer to Get-WindowsFeature cmdlet to fill out this parameter.
 
 # User memilih InstanceType yang nanti digunakan oleh EC2 instance, atau bisa menggunakan default value.
   InstanceType:
     Type: String
-    Default: t3a.micro
+    Default: t3.micro
     AllowedValues:
-      - t3a.micro
+      - t3.micro
       - t3a.small
       - t3a.medium
-    Description: Select instance type for EC2 instance. The default value is t3a.micro.
+    Description: Select instance type for EC2 instance. The default value is t3.micro.
 
 # User mengatur konfigurasi Subnet dan Security Group.
   SubnetID:
     Type: AWS::EC2::Subnet::Id
-    Description: Select existing Subnet for EC2.
+    Description: Select existing Subnet for EC2 instance.
+
   SecurityGroupID:
     Type: AWS::EC2::SecurityGroup::Id
-    Description: Select existing SecurityGroup for EC2.
+    Description: Select existing SecurityGroup for EC2 instance.
 
 # User memasukkan nama EC2 yang akan digunakan melalui Tag.
   EC2Name:
     Type: String
     Default: MyEC2
-    Description: Enter the name for this EC2.
+    Description: Enter the name for this EC2 instance.
 
 # User memilih SSH Keypair untuk remote ke EC2 instance.
   SSHKeypair:
     Type: AWS::EC2::KeyPair::KeyName
-    Description: Select existing EC2 KeyPair for remote RDP.
+    Description: Select existing keypair for remote RDP to EC2 instance.
+
 #----------------------------------------------------------------------------------------#
 Resources:
   EC2:
     Type: AWS::EC2::Instance
     Properties:
 # Gunakan AMI sesuai dengan value dari Parameter Store.
-      ImageId: !Ref AMI
-      InstanceType: !Ref InstanceType
-      KeyName: !Ref SSHKeypair
+      ImageId:
+        Ref: AMI
+      InstanceType:
+        Ref: InstanceType
+      KeyName:
+        Ref: SSHKeypair
 # Mengatur Elastic Network Interface dibuat di Subnet mana dan SecurityGroup-nya.
       NetworkInterfaces:
         - AssociatePublicIpAddress: true
           DeviceIndex: "0"
           GroupSet: 
-            - !Ref SecurityGroupID
-          SubnetId: !Ref SubnetID
+            - Ref: SecurityGroupID
+          SubnetId:
+            Ref: SubnetID
 # Gunakan InstanceProfile yang terhubung dengan IAM Role yang dibuat (artinya EC2 memakai IAM Role melalui InstanceProfile).
-      IamInstanceProfile: !Ref EC2ProfileforDirectoryService
+      IamInstanceProfile:
+        Ref: EC2ProfileforDirectoryService
       UserData:
         Fn::Base64:
 # UserData bisa menggunakan variable dari parameter dengan notasi ${parameter} memanfaatkan Fn::Sub atau !Sub.
@@ -70,17 +77,20 @@ Resources:
             </powershell>
       Tags:
       - Key: Name
-        Value: !Sub Lab - ${EC2Name}
+        Value:
+          Fn::Sub: Lab - ${EC2Name}
       - Key: OS
         Value: Windows Server
 
   EIP:
     Type: AWS::EC2::EIP
     Properties:
-      InstanceId: !Ref EC2
+      InstanceId:
+        Ref: EC2
       Tags: 
       - Key: Name
-        Value: !Sub Lab - ${EC2Name} EIP
+        Value:
+          Fn::Sub: Lab - ${EC2Name} EIP
 
 # Buat IAM Role yang membolehkan:
 # 1. SSM agent di EC2 bisa dikontrol oleh AWS System Manager.
@@ -103,30 +113,41 @@ Resources:
       Path: "/"
       Tags: 
       - Key: Name
-        Value: !Sub Lab - ${EC2Name} Role
+        Value:
+          Fn::Sub: Lab - ${EC2Name} Role
+
 # Buat InstanceProfile yang terhubung dengan IAM Role. IAM Role tidak akan dipasang secara langsung ke EC2 instance, melainkan InstanceProfile inilah yang akan dipasang.
   EC2ProfileforDirectoryService:
     Type: AWS::IAM::InstanceProfile
     Properties: 
       Path: "/"
       Roles: 
-        - !Ref EC2RoleforDirectoryService
+        - Ref: EC2RoleforDirectoryService
+
 #----------------------------------------------------------------------------------------#
 Outputs:
   EC2PublicDNS:
+    Value:
+      Fn::GetAtt: EC2.PublicDnsName
     Description: Public DNS Endpoint of EC2
-    Value: !GetAtt EC2.PublicDnsName
-  FeaturesEnabled:
-    Value: !Ref Features
-    Description: Features enabled on this instance
+
   EC2PublicIP:
+    Value:
+      Fn::GetAtt: EC2.PublicIp
     Description: Public IPv4 of EC2
-    Value: !GetAtt EC2.PublicIp
+
   EC2PrivateIP:
+    Value:
+      Fn::GetAtt: EC2.PrivateIp
     Description: Private IPv4 of EC2
-    Value: !GetAtt EC2.PrivateIp
+
+  FeaturesEnabled:
+    Value:
+      Ref: Features
+    Description: Features enabled on this instance
+
   RemoteEC2:
     Value:
 # Menggabung beberapa text untuk menampilkan link untuk remote via System Manager - Session Manager.
-      Fn::Join: [ "", [ "https://console.aws.amazon.com/systems-manager/session-manager/", !Ref EC2, "?region=", !Ref "AWS::Region" ]]
+      Fn::Join: [ "", [ "https://console.aws.amazon.com/systems-manager/session-manager/", Ref: EC2, "?region=", Ref: AWS::Region ]]
     Description: Remote EC2 via System Manager - Session Manager

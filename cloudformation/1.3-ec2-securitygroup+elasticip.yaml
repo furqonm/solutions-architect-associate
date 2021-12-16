@@ -1,19 +1,21 @@
 Description: >
   Membuat Linux EC2 baru dengan SecurityGroup dan ElasticIP. EC2 juga akan menggunakan Parameter (untuk InstanceType dan SSH Keypair) dan Mapping (untuk AMI ID).
+
 #----------------------------------------------------------------------------------------#
 Parameters:
   InstanceType:
     Type: String
-    Default: t3a.micro
+    Default: t3.micro
     AllowedValues:
-      - t3a.nano
-      - t3a.micro
+      - t3.micro
       - t3a.small
-    Description: Select instance type for EC2 instance. The default value is t3a.micro.
+      - t3a.medium
+    Description: Select instance type for EC2 instance. The default value is t3.micro.
 
   SSHKeypair:
     Type: AWS::EC2::KeyPair::KeyName
     Description: Select existing EC2 KeyPair for remote SSH.
+
 #----------------------------------------------------------------------------------------#
 Resources:
   EC2:
@@ -21,11 +23,13 @@ Resources:
     Properties:
 # Gunakan AMI ID milik Amazon Linux 2 terbaru dari public Parameter Store yang disediakan oleh AWS.
       ImageId: '{{resolve:ssm:/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2}}'
-      InstanceType: !Ref InstanceType
-      KeyName: !Ref SSHKeypair
+      InstanceType:
+        Ref: InstanceType
+      KeyName:
+        Ref: SSHKeypair
 # Pasang SecurityGroup yang dibuat ke EC2 instance.
       SecurityGroups:
-        - !Ref SecurityGroup
+        - Ref: SecurityGroup
       UserData:
 # Download dan extract halaman website kedalam EC2 instance.
         Fn::Base64: |
@@ -48,16 +52,17 @@ Resources:
       - Key: OS
         Value: Amazon Linux 2
 
-# Buat ElasticIP dan pasang ke EC2 instance yang dibuat.
+# Buat ElasticIP dan pasang ke EC2 instance yang dibuat. IP address public ini tidak akan berubah meskipun EC2 instance-nya dimatikan lalu dihidupkan.
   EIP:
     Type: AWS::EC2::EIP
     Properties:
-      InstanceId: !Ref EC2
+      InstanceId:
+        Ref: EC2
       Tags: 
       - Key: Name
         Value: MyEIP
 
-# Buat SecurityGroup yang membolehkan akses HTTP dan SSH untuk semua IP address.
+# Buat SecurityGroup yang membolehkan akses HTTP, SSH, and ICMP(ping) untuk semua IP address.
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -78,15 +83,21 @@ Resources:
       Tags:
       - Key: Name
         Value: MySecurityGroup
+
 #----------------------------------------------------------------------------------------#
 Outputs:
-# Ekstrak informasi EC2 instance yang dibuat. Public IPv4 atau public DNS-nya tetap berlaku, meskipun EC2-nya dimatikan dan dihidupkan karena EC2 menggunakan Elastic IP.
+# Ekstrak informasi EC2 instance yang dibuat. Public IPv4 atau public DNS-nya tetap berlaku, meskipun EC2-nya dimatikan dan dihidupkan karena EC2 instance menggunakan Elastic IP.
   EC2PublicDNS:
-    Value: !GetAtt EC2.PublicDnsName
+    Value:
+      Fn::GetAtt: EC2.PublicDnsName
     Description: Public DNS Endpoint of EC2
+
   EC2PublicIP:
-    Value: !GetAtt EC2.PublicIp
+    Value:
+      Fn::GetAtt: EC2.PublicIp
     Description: Public IPv4 of EC2
+
   EC2PrivateIP:
-    Value: !GetAtt EC2.PrivateIp
+    Value:
+      Fn::GetAtt: EC2.PrivateIp
     Description: Private IPv4 of EC2

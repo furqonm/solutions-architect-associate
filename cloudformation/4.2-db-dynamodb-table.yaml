@@ -1,67 +1,106 @@
 Description: >
-  Membuat DynamoDB table sederhana.
+  Membuat DynamoDB table dengan Hash Key dan Range Key sebagai Primary Key-nya.
+
+#----------------------------------------------------------------------------------------#
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Partition Key (Hash Key)
+      Parameters: [HashKey, HashKeyType]
+    - Label:
+        default: Sort Key (Range Key)
+      Parameters: [RangeKey, RangeKeyType]
+    - Label:
+        default: RCU/WCU
+      Parameters: [ReadCapacityUnits, WriteCapacityUnits]
+
+    ParameterLabels:
+      HashKey:
+        default: Name of hash key.
+      HashKeyType:
+        default: Type of hash key. Input string (S), or number (N).
+      RangeKey:
+        default: Name of range key.
+      RangeKeyType:
+        default: Type of range key. Input string (S), or number (N).
+      ReadCapacityUnits:
+        default: Provision Read Capacity Units (1 RCU is 4KB/s throughput for read).
+      WriteCapacityUnits:
+        default: Provision Write Capacity Units (1 WCU is 1KB/s throughput for write).
+
 #----------------------------------------------------------------------------------------#
 Parameters:
   HashKey:
-    Description: Name of hashkey (partition key)
     Type: String
     AllowedPattern: "[a-zA-Z0-9]*"
     MinLength: 1
     MaxLength: 2048
     ConstraintDescription: Must contain only alphanumberic characters.
+
   HashKeyType:
-    Description: Type of hashkey. Input string (S), or number (N).
     Type: String
     Default: S
     AllowedPattern: "[S|N]"
     ConstraintDescription: Must be either S, or N.
+
   RangeKey:
-    Description: Name of rangekey (sort key).
     Type: String
     AllowedPattern: "[a-zA-Z0-9]*"
     MinLength: 1
     MaxLength: 2048
     ConstraintDescription: Must contain only alphanumberic characters.
+ 
   RangeKeyType:
-    Description: Type of rangekey. Input string (S), or number (N).
     Type: String
     Default: S
     AllowedPattern: "[S|N]"
     ConstraintDescription: Must be either S, or N.
+
   ReadCapacityUnits:
-    Description: Provision ReadCapacityUnits (1 RCU is 4KB/s throughput for read).
     Type: Number
     Default: 5
     MinValue: 5
     MaxValue: 10000
     ConstraintDescription: Must be between 5 and 10000.
+
   WriteCapacityUnits:
-    Description: Provision WriteCapacityUnits (1 WCU is 1KB/s throughput for write).
     Type: Number
     Default: 10
     MinValue: 5
     MaxValue: 10000
-    ConstraintDescription: Must be between 5 and 10000
+    ConstraintDescription: Must be between 5 and 10000.
+
 #----------------------------------------------------------------------------------------#
 Resources:
   DynamoDBTable:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
-      - AttributeName: !Ref HashKey
-        AttributeType: !Ref HashKeyType
-      - AttributeName: !Ref RangeKey
-        AttributeType: !Ref RangeKeyType
+      - AttributeName:
+          Ref: HashKey
+        AttributeType:
+          Ref: HashKeyType
+      - AttributeName:
+          Ref: RangeKey
+        AttributeType:
+          Ref: RangeKeyType
       KeySchema:
-      - AttributeName: !Ref HashKey
+      - AttributeName:
+          Ref: HashKey
         KeyType: HASH
-      - AttributeName: !Ref RangeKey
+      - AttributeName:
+          Ref: RangeKey
         KeyType: RANGE
       ProvisionedThroughput:
-        ReadCapacityUnits: !Ref ReadCapacityUnits
-        WriteCapacityUnits: !Ref WriteCapacityUnits
+        ReadCapacityUnits:
+          Ref: ReadCapacityUnits
+        WriteCapacityUnits:
+          Ref: WriteCapacityUnits
+
 #----------------------------------------------------------------------------------------#
 Outputs:
   TableARN:
-    Value: !GetAtt DynamoDBTable.Arn
-    Description: ARN of the created DynamoDB table.
+    Value:
+      Fn::GetAtt: DynamoDBTable.Arn
+    Description: ARN of the created DynamoDB table

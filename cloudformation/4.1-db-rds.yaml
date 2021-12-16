@@ -1,0 +1,94 @@
+Description: >
+  Membuat RDS baru dengan pengaturan minimal.
+
+#----------------------------------------------------------------------------------------#
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: DB Specification
+      Parameters: [DatabaseName, InstanceClass, DBEngine]
+    - Label:
+        default: DB Credential
+      Parameters: [Username, Password]
+
+#----------------------------------------------------------------------------------------#
+Parameters:
+  Username:
+    Type: String
+    MinLength: 1
+    MaxLength: 16
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: Must begin with a letter and contain only alphanumeric characters.
+    Description: Enter username of database admin.
+
+  Password:
+    Type: String
+    MinLength: 8
+    MaxLength: 30
+    NoEcho: true
+    AllowedPattern: "[a-zA-Z0-9]*"
+    ConstraintDescription: Must contain only alphanumberic characters with minimal 8 to 30 characters.
+    Description: Enter password of database admin.
+
+  InstanceClass:
+    Type: String
+    Default: db.t2.micro
+    AllowedValues:
+      - db.t2.micro
+      - db.t3.small
+      - db.t3.medium
+    Description: Select instance class for DB instance. The default value is db.t2.micro.
+
+  DBEngine:
+    Type: String
+    Default: MySQL
+    AllowedValues:
+      - MySQL
+      - MariaDB
+      - Postgres
+      - SQLServer-EX
+    Description: Select database engine for DB instance. The default value is MySQL.
+
+  DatabaseName:
+    Type: String
+    Default: MyRDS
+    Description: Enter the name for this DB instance.
+
+#----------------------------------------------------------------------------------------#
+Resources:
+# Buat RDS MySQL.
+  RDS:
+    Type: AWS::RDS::DBInstance
+    Properties:
+# Gunakan nama DB instance yang dipilih oleh User.
+      DBInstanceIdentifier:
+        Ref: DatabaseName
+# Kapasitas storage untuk database (dalam satuan GB) dengan nilai minimal 20 sampai 65536, kecuali untuk SQL Server harus 16384. Jika menggunakan Provisioned IOPS SSD harus diisi minimal 100.
+      AllocatedStorage: 20
+      BackupRetentionPeriod: 7
+      DBInstanceClass:
+        Ref: InstanceClass
+      Engine:
+        Ref: DBEngine
+      MasterUsername:
+        Ref: Username
+      MasterUserPassword:
+        Ref: Password
+      MultiAZ: false
+      PubliclyAccessible: false
+# Hapus tanda komentar "#" kalau ingin menggunakan Provision IOPS SSD
+#     Iops: '1000'
+      Tags:
+      - Key: Name
+        Value:
+          Fn::Sub: Lab - ${DatabaseName} Instance
+# Hapus tanda komentar "#" kalau ingin CloudFormation melakukan snapshot pada saat stack didelete. Harap perhatikan snapshot yang dibuat karena bisa menimbulkan pembayaran.
+#    DeletionPolicy: Snapshot
+
+#----------------------------------------------------------------------------------------#
+Outputs:
+  ConnectionString:
+    Value:
+      Fn::Join: [":", [Fn::GetAtt: [RDS,Endpoint.Address], Fn::GetAtt: [RDS,Endpoint.Port]]]
+    Description: Database connection string

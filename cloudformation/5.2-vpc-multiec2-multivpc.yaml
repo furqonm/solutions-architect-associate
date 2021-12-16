@@ -1,31 +1,52 @@
 Description: >
   Membuat EC2 dimasing-masing VPC yang berbeda dengan memanfaatkan template lain (nested stack).
+
 #----------------------------------------------------------------------------------------#
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: EC2 Instance Setting
+      Parameters:
+      - EC2One
+      - EC2Two
+      - InstanceType
+    - Label:
+        default: VPC Setting
+      Parameters:
+      - VPCOne
+      - VPCTwo
+
 Parameters:
   EC2One:
-    Description: Please enter the name for first EC2 inside first VPC.
     Type: String
     Default: MyEC2-One
+    Description: Please enter the name for first EC2 instance inside first VPC.
+
   EC2Two:
-    Description: Please enter the name for second EC2 inside second VPC.
     Type: String
     Default: MyEC2-Two
+    Description: Please enter the name for second EC2 instance inside second VPC.
+
   VPCOne:
-    Description: Please enter the name for first VPC.
     Type: String
     Default: MyFirstVPC
+    Description: Please enter the name for first VPC.
+
   VPCTwo:
-    Description: Please enter the name for second VPC.
     Type: String
     Default: MySecondVPC
+    Description: Please enter the name for second VPC.
+
   InstanceType:
     Type: String
-    Default: t3a.micro
+    Default: t3.micro
     AllowedValues:
-      - t3a.nano
-      - t3a.micro
+      - t3.micro
       - t3a.small
-    Description: Select instance type for EC2 instance. The default value is t3a.micro.
+      - t3a.medium
+    Description: Select instance type for EC2 instance. The default value is t3.micro.
+
 #----------------------------------------------------------------------------------------#
 Resources:
   FirstVPC:
@@ -33,7 +54,8 @@ Resources:
     Properties:
       TemplateURL: https://furqonmauladani.s3.amazonaws.com/5.1-vpc-multiaz.yaml
       Parameters:
-        VPCName: !Ref VPCOne
+        VPCName:
+          Ref: VPCOne
         VPCCIDR: 192.168.0.0/16
         PublicSubnet1CIDR: 192.168.0.0/24
         PrivateSubnet1CIDR: 192.168.1.0/24
@@ -45,7 +67,8 @@ Resources:
     Properties:
       TemplateURL: https://furqonmauladani.s3.amazonaws.com/5.1-vpc-multiaz.yaml
       Parameters:
-        VPCName: !Ref VPCTwo
+        VPCName:
+          Ref: VPCTwo
         VPCCIDR: 172.31.0.0/16
         PublicSubnet1CIDR: 172.31.0.0/24
         PrivateSubnet1CIDR: 172.31.1.0/24
@@ -57,10 +80,14 @@ Resources:
     Properties:
       TemplateURL: https://furqonmauladani.s3.amazonaws.com/2.1-ssm-registered-linux.yaml
       Parameters:
-        EC2Name: !Ref EC2One
-        InstanceType: !Ref InstanceType
-        SubnetID: !Select [0, !Split [",", !GetAtt [FirstVPC,Outputs.PublicSubnetsCIDR]]]
-        SecurityGroupID: !GetAtt [FirstVPC,Outputs.SecurityGroupID]
+        EC2Name:
+          Ref: EC2One
+        InstanceType:
+          Ref: InstanceType
+        SubnetID:
+          Fn::Select: [0, Fn::Split: [",", Fn::GetAtt: [FirstVPC,Outputs.PublicSubnetsCIDR]]]
+        SecurityGroupID:
+          Fn::GetAtt: [FirstVPC,Outputs.SecurityGroupID]
         ApplicationURL: https://furqonmauladani.s3.amazonaws.com/package.zip
 
   SecondEC2:
@@ -68,26 +95,34 @@ Resources:
     Properties:
       TemplateURL: https://furqonmauladani.s3.amazonaws.com/2.1-ssm-registered-linux.yaml
       Parameters:
-        EC2Name: !Ref EC2Two
-        InstanceType: !Ref InstanceType
-        SubnetID: !Select [0, !Split [",", !GetAtt [SecondVPC,Outputs.PublicSubnetsCIDR]]]
-        SecurityGroupID: !GetAtt [SecondVPC,Outputs.SecurityGroupID]
+        EC2Name:
+          Ref: EC2Two
+        InstanceType:
+          Ref: InstanceType
+        SubnetID:
+          Fn::Select: [0, Fn::Split: [",", Fn::GetAtt: [SecondVPC,Outputs.PublicSubnetsCIDR]]]
+        SecurityGroupID:
+          Fn::GetAtt: [SecondVPC,Outputs.SecurityGroupID]
         ApplicationURL: https://furqonmauladani.s3.amazonaws.com/package.zip
+
 #----------------------------------------------------------------------------------------#
 Outputs:
   PublicDNSofFirstEC2:
-    Description: Public DNS endpoint of first EC2
     Value:
       Fn::GetAtt: [FirstEC2,Outputs.EC2PublicDNS]
+    Description: Public DNS endpoint of first EC2
+
   PublicDNSofSecondEC2:
-    Description: Public DNS endpoint of second EC2
     Value:
       Fn::GetAtt: [SecondEC2,Outputs.EC2PublicDNS]
+    Description: Public DNS endpoint of second EC2
+
   RemoteFirstEC2:
-    Description: Remote first EC2 via System Manager - Session Manager
     Value:
       Fn::GetAtt: [FirstEC2,Outputs.RemoteEC2]
+    Description: Remote first EC2 via System Manager - Session Manager
+
   RemoteSecondEC2:
-    Description: Remote second EC2 via System Manager - Session Manager
     Value:
       Fn::GetAtt: [SecondEC2,Outputs.RemoteEC2]
+    Description: Remote second EC2 via System Manager - Session Manager
