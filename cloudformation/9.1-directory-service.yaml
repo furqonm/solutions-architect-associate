@@ -78,11 +78,11 @@ Outputs:
       Ref: ActiveDirectoryName
     Description: Name of Directory Service
 
-# Ekstrak informasi ID dari System Manager - Document untuk join ke Domain Service.
-  JoinADDocumentID:
+# Ekstrak informasi nama dari System Manager - Document untuk join ke domain.
+  JoinADDocumentName:
     Value:
       Ref: JoinADDocument
-    Description: ID of System Manager - Document for join directory
+    Description: Name of System Manager - Document for join directory
 
 # Ekstrak informasi IP address dari Directory Service yang dibuat.
   DirectoryIPAddress1:

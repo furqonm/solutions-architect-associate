@@ -1,0 +1,86 @@
+Description: >
+  Membuat Windows Server EC2 dengan menggunakan AMI Windows Server terbaru yang terdaftar di System Manager dan akses ke Directory Service. Directory Service yang merupakan managed Microsoft Active Directory juga akan dibuat.
+
+#----------------------------------------------------------------------------------------#
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t3.micro
+    AllowedValues:
+      - t3.micro
+      - t3a.small
+      - t3a.medium
+    Description: Select instance type for EC2 instance. The default value is t3.micro.
+
+  SSHKeypair:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Select existing keypair for remote RDP to EC2 instance.
+
+#----------------------------------------------------------------------------------------#
+Resources:
+  VPC:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/5.1-vpc-multiaz.yaml
+      Parameters:
+        VPCCIDR: 192.168.0.0/16
+        PublicSubnet1CIDR: 192.168.0.0/24
+        PrivateSubnet1CIDR: 192.168.1.0/24
+        PublicSubnet2CIDR: 192.168.2.0/24
+        PrivateSubnet2CIDR: 192.168.3.0/24
+
+  EC2:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/2.2-ssm-registered-windows.yaml
+      Parameters:
+        InstanceType:
+          Ref: InstanceType
+        SubnetID:
+          Fn::Select: [0, Fn::Split: [",", Fn::GetAtt: [VPC,Outputs.PublicSubnetsCIDR]]]
+        SecurityGroupID:
+          Fn::GetAtt: [VPC,Outputs.SecurityGroupID]
+        SSHKeypair:
+          Ref: SSHKeypair
+
+  DirectoryService:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/9.1-directory-service.yaml
+      Parameters:
+        VPCID:
+          Fn::GetAtt: [VPC,Outputs.VPCID]
+        SubnetID1:
+          Fn::Select: [0, Fn::Split: [",", Fn::GetAtt: [VPC,Outputs.PrivateSubnetsCIDR]]]
+        SubnetID2:
+          Fn::Select: [1, Fn::Split: [",", Fn::GetAtt: [VPC,Outputs.PrivateSubnetsCIDR]]]
+
+  InstanceAssociation:
+    Type: AWS::SSM::Association
+    Properties:
+      Name:
+        Fn::GetAtt: [DirectoryService,Outputs.JoinADDocumentName]   
+      Targets:
+      - Key: InstanceIds
+        Values:
+        - Fn::GetAtt: [EC2,Outputs.EC2ID]
+      Parameters:
+        dnsIpAddresses:
+        - Fn::GetAtt: [DirectoryService,Outputs.DirectoryIPAddress1]
+        - Fn::GetAtt: [DirectoryService,Outputs.DirectoryIPAddress2]
+        directoryId:
+        - Fn::GetAtt: [DirectoryService,Outputs.DirectoryServiceID]
+        directoryName:
+        - Fn::GetAtt: [DirectoryService,Outputs.DirectoryServiceName]
+
+#----------------------------------------------------------------------------------------#
+Outputs:
+  PublicDNSofEC2:
+    Value:
+      Fn::GetAtt: [EC2,Outputs.EC2PublicDNS]
+    Description: Public DNS endpoint of first EC2
+
+  RemoteEC2:
+    Value:
+      Fn::GetAtt: [EC2,Outputs.RemoteEC2]
+    Description: Remote first EC2 via System Manager - Session Manager
