@@ -126,6 +126,11 @@ Resources:
 
 #----------------------------------------------------------------------------------------#
 Outputs:
+  EC2ID:
+    Value:
+      Ref: EC2
+    Description: ID of EC2
+
   EC2PublicDNS:
     Value:
       Fn::GetAtt: EC2.PublicDnsName

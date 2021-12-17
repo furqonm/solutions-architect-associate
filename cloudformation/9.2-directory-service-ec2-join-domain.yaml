@@ -1,5 +1,5 @@
 Description: >
-  Membuat Windows Server EC2 dengan menggunakan AMI Windows Server terbaru yang terdaftar di System Manager dan akses ke Directory Service. Directory Service yang merupakan managed Microsoft Active Directory juga akan dibuat.
+  Membuat EC2 dengan menggunakan AMI Windows Server terbaru yang terdaftar di System Manager dan akses ke Directory Service. Directory Service yang merupakan managed Microsoft Active Directory juga akan dibuat.
 
 #----------------------------------------------------------------------------------------#
 Parameters:
@@ -75,12 +75,12 @@ Resources:
 
 #----------------------------------------------------------------------------------------#
 Outputs:
-  PublicDNSofEC2:
+  EC2PublicDNS:
     Value:
       Fn::GetAtt: [EC2,Outputs.EC2PublicDNS]
-    Description: Public DNS endpoint of first EC2
+    Description: Public DNS endpoint of EC2
 
   RemoteEC2:
     Value:
       Fn::GetAtt: [EC2,Outputs.RemoteEC2]
-    Description: Remote first EC2 via System Manager - Session Manager
+    Description: Remote EC2 via System Manager - Session Manager

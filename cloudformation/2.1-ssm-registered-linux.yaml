@@ -141,11 +141,6 @@ Outputs:
       Fn::GetAtt: EC2.PrivateIp
     Description: Private IPv4 of EC2
 
-  EC2ID:
-    Value:
-      Ref: EC2
-    Description: ID of EC2
-
   RemoteEC2:
     Value:
 # Menggabung beberapa text untuk menampilkan link untuk remote via System Manager - Session Manager.
