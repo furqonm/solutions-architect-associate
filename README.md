@@ -3,17 +3,16 @@ _[DISCLAIMER] Links dan materials yang ada disini dipergunakan untuk tambahan ma
 
 ---
 ## Exam Preparation Materials
-### 1. AWS Course: Fundamental Level
+### 1. Course
 - [AWS Basics for Beginners - Full Course](https://www.youtube.com/watch?v=ulprqHHWlng&ab_channel=freeCodeCamp.org) **(Unofficial)**
 
     > Video material dari Neal Davis (Digital Cloud Training) di freecodecamp. Silahkan dipelajari untuk memperkuat konsep dasar AWS Cloud, dimana materi ini cocok untuk pemula dan terdapat beberapa demo yang ditampilkan.
 
-### 2. AWS Course: Associate Level
 - [AWS Certified Solutions Architect - Associate 2020 (PASS THE EXAM!)](https://www.youtube.com/watch?v=Ia-UEYYR44s&ab_channel=freeCodeCamp.org) **(Unofficial)**
 
     > Video material dari Andrew Brown (ExamPro) di freecodecamp. Silahkan dipelajari untuk memperdalam pengenalan beberapa service di AWS berikut fitur-fiturnya yang mungkin diujikan.
 
-### 3. Exam Guide
+### 2. Exam Guide
 - [AWS Certified Solutions Architect - Associate Exam Guide](https://d1.awsstatic.com/training-and-certification/docs-sa-assoc/AWS-Certified-Solutions-Architect-Associate_Exam-Guide.pdf)
 
     > Membahas 4 domain/section yang akan ditanyakan diujian. Bisa dicek beberapa poin mana yang tidak dimengerti untuk dipelajari lebih lanjut.
@@ -22,7 +21,7 @@ _[DISCLAIMER] Links dan materials yang ada disini dipergunakan untuk tambahan ma
 
     > Catatan berisikan key point service-service di AWS.
 
-### 4. Exam Readiness
+### 3. Exam Readiness
 - [Exam Readiness: AWS Certified Solutions Architect – Associate (Digital)](https://explore.skillbuilder.aws/learn/course/internal/view/elearning/125/exam-readiness-aws-certified-solutions-architect-associate-digital/enroll)
 
     > E-learning untuk latihan persiapan ujian Solutions Architect Associate dari AWS. Materi berisikan eksplorasi topik yang keluar di ujian dan beberapa contoh soal ujian. Untuk mencoba bisa mendaftar menggunakan akun Amazon kita, bukan akun AWS.
