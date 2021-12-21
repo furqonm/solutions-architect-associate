@@ -60,6 +60,8 @@ Resources:
 # Buat RDS MySQL.
   RDS:
     Type: AWS::RDS::DBInstance
+# Hapus tanda komentar "#" kalau ingin CloudFormation melakukan snapshot pada saat stack didelete. Harap perhatikan snapshot yang dibuat karena bisa menimbulkan pembayaran.
+#   DeletionPolicy: Snapshot
     Properties:
 # Gunakan nama DB instance yang dipilih oleh User.
       DBInstanceIdentifier:
@@ -83,8 +85,6 @@ Resources:
       - Key: Name
         Value:
           Fn::Sub: Lab - ${DatabaseName} Instance
-# Hapus tanda komentar "#" kalau ingin CloudFormation melakukan snapshot pada saat stack didelete. Harap perhatikan snapshot yang dibuat karena bisa menimbulkan pembayaran.
-#    DeletionPolicy: Snapshot
 
 #----------------------------------------------------------------------------------------#
 Outputs:

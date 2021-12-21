@@ -1,0 +1,59 @@
+
+Description: >
+  Membuat EBS baru dengan pengaturan minimal.
+
+#----------------------------------------------------------------------------------------#
+Parameters:
+  AZ:
+    Type: String
+    Default:
+      Fn::Select: [0, Fn::GetAZs: ""]
+    AllowedValues:
+      - Fn::Select: [0, Fn::GetAZs: ""]
+      - Fn::Select: [1, Fn::GetAZs: ""]
+      - Fn::Select: [2, Fn::GetAZs: ""]
+    Description: Select AvailabilityZone for EBS volume.
+
+  EBSType:
+    Type: String
+    Default: gp2
+    AllowedValues:
+      - gp3
+      - io1
+      - io2
+      - sc1
+      - st1
+    Description: Select volume type for EBS volume.
+
+  EBSSize:
+    Type: Number
+    Default: 5
+    MinValue: 1
+    MaxValue: 16384
+    ConstraintDescription: Minimum size for gp2/gp3 is 1 GB, io1/io2 is 4 GB, and st1/sc1 is 125 GB. Maximum size for all EBS type is 16.384 GB.
+
+#----------------------------------------------------------------------------------------#
+Resources:
+# Buat EBS volume.
+  EBS:
+    Type: AWS::EC2::Volume
+# Hapus tanda komentar "#" kalau ingin CloudFormation melakukan snapshot pada saat stack didelete. Harap perhatikan snapshot yang dibuat karena bisa menimbulkan pembayaran.
+#   DeletionPolicy: Snapshot
+    Properties:
+      AvailabilityZone:
+        Ref: AZ
+      Size:
+        Ref: EBSSize
+      VolumeType:
+        Ref: EBSType
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Sub: Lab - EBS ${EBSType}
+
+#----------------------------------------------------------------------------------------#
+Outputs:
+  EBSID:
+    Value:
+      Ref: EBS
+    Description: EBS ID

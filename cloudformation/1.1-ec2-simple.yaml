@@ -3,7 +3,7 @@ Description: >
 
 #----------------------------------------------------------------------------------------#
 Resources:
-# Buat EC2 instance dengan pilihan AMI, InstanceType, UserData, dan Tag.
+# Buat EC2 instance dengan pilihan AMI di North Virginia, InstanceType, UserData, dan Tag.
   EC2:
     Type: AWS::EC2::Instance
     Properties:
