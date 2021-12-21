@@ -5,19 +5,14 @@ Description: >
 #----------------------------------------------------------------------------------------#
 Parameters:
   AZ:
-    Type: String
-    Default:
-      Fn::Select: [0, Fn::GetAZs: ""]
-    AllowedValues:
-      - Fn::Select: [0, Fn::GetAZs: ""]
-      - Fn::Select: [1, Fn::GetAZs: ""]
-      - Fn::Select: [2, Fn::GetAZs: ""]
+    Type: AWS::EC2::AvailabilityZone::Name
     Description: Select AvailabilityZone for EBS volume.
 
   EBSType:
     Type: String
     Default: gp2
     AllowedValues:
+      - gp2
       - gp3
       - io1
       - io2
@@ -30,7 +25,8 @@ Parameters:
     Default: 5
     MinValue: 1
     MaxValue: 16384
-    ConstraintDescription: Minimum size for gp2/gp3 is 1 GB, io1/io2 is 4 GB, and st1/sc1 is 125 GB. Maximum size for all EBS type is 16.384 GB.
+    ConstraintDescription: Must be between 1 GB and 16.384 GB.
+    Description: Minimum size for gp2/gp3 is 1 GB, io1/io2 is 4 GB, and st1/sc1 is 125 GB. Maximum size for all EBS type is 16.384 GB.
 
 #----------------------------------------------------------------------------------------#
 Resources:
