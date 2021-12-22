@@ -9,7 +9,6 @@ Parameters:
     Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
     Description: Select the Linux AMI ID inside System Manager - Parameter Store (The default value is the latest Amazon Linux 2 in public Parameter Store).
 
-# User memilih InstanceType yang nanti digunakan oleh EC2 instance, atau bisa menggunakan default value.
   InstanceType:
     Type: String
     Default: t3.micro
@@ -19,7 +18,6 @@ Parameters:
       - t3a.medium
     Description: Select instance type for EC2 instance. The default value is t3.micro.
 
-# User mengatur konfigurasi Subnet dan Security Group.
   SubnetID:
     Type: AWS::EC2::Subnet::Id
     Description: Select existing Subnet for EC2 instance.
@@ -42,14 +40,16 @@ Parameters:
 
 #----------------------------------------------------------------------------------------#
 Resources:
+# Buat EC2 instance dengan pilihan AMI, instance type, konfigurasi elastic network interface, IAM instance profile, keypair, user data, dan tag.
   EC2:
     Type: AWS::EC2::Instance
     Properties:
-# Gunakan AMI sesuai dengan value dari Parameter Store.
+# Gunakan AMI sesuai dengan value dari System Manager - Parameter Store.
       ImageId:
         Ref: AMI
       InstanceType:
         Ref: InstanceType
+# Membuat elastic network interface dan mengatur agar menggunakan security group dan subnet yang dipilih oleh User.
       NetworkInterfaces:
         - AssociatePublicIpAddress: true
           DeviceIndex: "0"
@@ -57,12 +57,12 @@ Resources:
             - Ref: SecurityGroupID
           SubnetId:
             Ref: SubnetID
-# Gunakan InstanceProfile yang terhubung dengan IAM Role yang dibuat (artinya EC2 memakai IAM Role melalui InstanceProfile).
+# Gunakan instance profile yang terhubung dengan IAM role yang dibuat (artinya EC2 memakai IAM role melalui instance profile).
       IamInstanceProfile:
         Ref: EC2ProfileforSSM
       UserData:
         Fn::Base64:
-# UserData bisa menggunakan variable dari parameter dengan notasi ${parameter} memanfaatkan Fn::Sub atau !Sub.
+# User data bisa menggunakan variable dari parameter dengan notasi ${parameter} memanfaatkan Fn::Sub atau !Sub.
           Fn::Sub: |
             #!/bin/bash
             yum update -y
@@ -86,6 +86,7 @@ Resources:
       - Key: OS
         Value: Linux
 
+# Buat ElasticIP dan pasang ke EC2 instance. Public IPv4 address ini tidak akan berubah meskipun EC2 instance-nya dimatikan lalu dihidupkan.
   EIP:
     Type: AWS::EC2::EIP
     Properties:
@@ -96,7 +97,7 @@ Resources:
         Value:
           Fn::Sub: Lab - ${EC2Name} EIP
   
-# Buat IAM Role yang membolehkan agar SSM agent di EC2 bisa dikontrol oleh AWS System Manager.
+# Buat IAM role yang membolehkan agar SSM agent didalam EC2 bisa dikontrol oleh AWS System Manager.
   EC2RoleforSSM:
     Type: AWS::IAM::Role
     Properties:
@@ -116,7 +117,7 @@ Resources:
         Value:
           Fn::Sub: Lab - ${EC2Name} Role
 
-# Buat InstanceProfile yang terhubung dengan IAM Role. IAM Role tidak akan dipasang secara langsung ke EC2 instance, melainkan InstanceProfile inilah yang akan dipasang.
+# Buat instance profile yang terhubung dengan IAM role. IAM role tidak akan dipasang secara langsung ke EC2 instance, melainkan instance profile yang akan dipasang.
   EC2ProfileforSSM:
     Type: AWS::IAM::InstanceProfile
     Properties: 
@@ -126,6 +127,11 @@ Resources:
 
 #----------------------------------------------------------------------------------------#
 Outputs:
+  EC2ID:
+    Value:
+      Ref: EC2
+    Description: EC2 ID
+
   EC2PublicDNS:
     Value:
       Fn::GetAtt: EC2.PublicDnsName
@@ -141,8 +147,12 @@ Outputs:
       Fn::GetAtt: EC2.PrivateIp
     Description: Private IPv4 of EC2
 
+# Membuat link untuk akses remote ke EC2 instance via System Manager - Session Manager. EC2 memiliki SSM agent dan IAM role yang cukup untuk melakukan akses remote.
   RemoteEC2:
     Value:
-# Menggabung beberapa text untuk menampilkan link untuk remote via System Manager - Session Manager.
+# Menggabungkan beberapa text untuk menampilkan link untuk akses remote, seperti:
+# - URL System Manager - Session Manager yang sifatnya tidak berubah di region manapun.
+# - ID dari EC2 yang ingin di remote. ID diambil dari EC2 yang dibuat.
+# - Region ID yang akan berubah-berubah ketika template ini dieksekusi di region yang berbeda.
       Fn::Join: [ "", [ "https://console.aws.amazon.com/systems-manager/session-manager/", Ref: EC2, "?region=", Ref: AWS::Region ]]
     Description: Remote EC2 via System Manager - Session Manager

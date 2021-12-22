@@ -18,18 +18,19 @@ Parameters:
 
 #----------------------------------------------------------------------------------------#
 Resources:
+# Buat EC2 instance dengan pilihan AMI, instance type, security group, keypair, user data, dan tag.
   EC2:
     Type: AWS::EC2::Instance
     Properties:
-# Gunakan AMI ID milik Amazon Linux 2 terbaru dari public Parameter Store yang disediakan oleh AWS.
+# Gunakan AMI ID milik Amazon Linux 2 terbaru yang diambil dari System Manager - Parameter Store yang disediakan oleh AWS.
       ImageId: '{{resolve:ssm:/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2}}'
       InstanceType:
         Ref: InstanceType
-      KeyName:
-        Ref: SSHKeypair
 # Pasang SecurityGroup yang dibuat ke EC2 instance.
       SecurityGroups:
         - Ref: SecurityGroup
+      KeyName:
+        Ref: SSHKeypair
       UserData:
 # Download dan extract halaman website kedalam EC2 instance.
         Fn::Base64: |
@@ -52,7 +53,7 @@ Resources:
       - Key: OS
         Value: Amazon Linux 2
 
-# Buat ElasticIP dan pasang ke EC2 instance yang dibuat. IP address public ini tidak akan berubah meskipun EC2 instance-nya dimatikan lalu dihidupkan.
+# Buat ElasticIP dan pasang ke EC2 instance. Public IPv4 address ini tidak akan berubah meskipun EC2 instance-nya dimatikan lalu dihidupkan.
   EIP:
     Type: AWS::EC2::EIP
     Properties:
@@ -86,7 +87,17 @@ Resources:
 
 #----------------------------------------------------------------------------------------#
 Outputs:
-# Ekstrak informasi EC2 instance yang dibuat. Public IPv4 atau public DNS-nya tetap berlaku, meskipun EC2-nya dimatikan dan dihidupkan karena EC2 instance menggunakan Elastic IP.
+  EC2ID:
+    Value:
+      Ref: EC2
+    Description: EC2 ID
+
+  EC2PrivateIP:
+    Value:
+      Fn::GetAtt: EC2.PrivateIp
+    Description: Private IPv4 of EC2
+
+# Ekstrak informasi public DNS dan public IPv4 address. Public DNS dan IPv4-nya tetap berlaku, meskipun EC2-nya dihidupkan kembali. Hal ini karena EC2 instance menggunakan ElasticIP yang sifatnya static.
   EC2PublicDNS:
     Value:
       Fn::GetAtt: EC2.PublicDnsName
@@ -96,8 +107,3 @@ Outputs:
     Value:
       Fn::GetAtt: EC2.PublicIp
     Description: Public IPv4 of EC2
-
-  EC2PrivateIP:
-    Value:
-      Fn::GetAtt: EC2.PrivateIp
-    Description: Private IPv4 of EC2

@@ -3,14 +3,15 @@ Description: >
 
 #----------------------------------------------------------------------------------------#
 Resources:
-# Buat EC2 instance dengan pilihan AMI di North Virginia, InstanceType, UserData, dan Tag.
+# Buat EC2 instance dengan pilihan AMI, instance type, user data, dan tag.
   EC2:
     Type: AWS::EC2::Instance
     Properties:
+# AMI ID ini merupakan AMI untuk Amazon Linux di North Virginia. Jika template dieksekusi diluar North Virginia maka CloudFormation stack akan gagal dibuat karena AMI ID tidak tersedia di region tersebut.
       ImageId: ami-04902260ca3d33422
       InstanceType: t3.micro
       UserData:
-# Fn::Base64 untuk mengirimkan data yang diencode kedalam EC2 instance sebagai UserData. Notasi | digunakan menggabungkan beberapa baris kalimat jika isinya terlalu panjang.
+# Fn::Base64 untuk mengirimkan data yang diencode kedalam EC2 instance sebagai user data. Notasi | digunakan menggabungkan beberapa baris kalimat jika isinya terlalu panjang.
         Fn::Base64: |
           #!/bin/bash
           yum update -y
@@ -18,6 +19,7 @@ Resources:
           systemctl start httpd
           systemctl enable httpd
           echo "<html><h1>Hello EC2</h1></html>" > /var/www/html/index.html
+# Pasang tag untuk EC2 instance.
       Tags: 
       - Key: Name
         Value: MyEC2
@@ -26,7 +28,19 @@ Resources:
 
 #----------------------------------------------------------------------------------------#
 Outputs:
-# Ekstrak informasi EC2 instance yang dibuat. Yang perlu diperhatikan ketika EC2 instance dimatikan, maka public IPv4 atau public DNS-nya akan tidak berlaku lagi karena dua-duanya akan berubah saat EC2-nya dihidupkan kembali.
+# Ekstrak informasi ID milik EC2 instance.
+  EC2ID:
+    Value:
+      Ref: EC2
+    Description: EC2 ID
+
+# Ekstrak informasi private IPv4 address milik EC2 instance.
+  EC2PrivateIP:
+    Value:
+      Fn::GetAtt: EC2.PrivateIp
+    Description: Private IPv4 of EC2
+
+# Ekstrak informasi public DNS dan public IPv4 address. Yang perlu diperhatikan ketika EC2 instance dimatikan, maka public DNS maupun IPv4-nya tidak akan berlaku lagi. Hal ini karena dua-duanya bersifat ephemeral atau berubah saat EC2-nya dihidupkan kembali.
   EC2PublicDNS:
     Value:
       Fn::GetAtt: EC2.PublicDnsName
@@ -36,8 +50,3 @@ Outputs:
     Value:
       Fn::GetAtt: EC2.PublicIp
     Description: Public IPv4 of EC2
-
-  EC2PrivateIP:
-    Value:
-      Fn::GetAtt: EC2.PrivateIp
-    Description: Private IPv4 of EC2
