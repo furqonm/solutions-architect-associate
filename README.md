@@ -50,6 +50,11 @@ _[DISCLAIMER] Links dan materials yang ada disini dipergunakan untuk tambahan ma
 
     > Kumpulan lab AWS yang disediakan gratis. Untuk mencoba bisa mendaftar menggunakan akun Google kita.
 
+- [Play with Docker](https://labs.play-with-docker.com/)
+- [Kubernetes: Hello Minikube](https://kubernetes.io/docs/tutorials/hello-minikube/)
+
+    > Hands-on Labs gratis untuk belajar Docker dan Kubernetes. Lab berjalan di browser tanpa memerlukan instalasi.
+
 ### 3. Step-by-Step Tutorials
 - [Well-Architected Labs](https://www.wellarchitectedlabs.com)
 - [AWS Hands-On Tutorials](https://aws.amazon.com/getting-started/hands-on)
