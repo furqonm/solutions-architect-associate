@@ -1,0 +1,46 @@
+Description: >
+  EC2 instance dan EBS volume sebagai nested stack.
+# Nested stack berarti stack yang dibuat dan dibutuhkan oleh stack utama. Jadi template yang dibuat bisa modular dan mudah dikelola oleh beberapa karyawan yang berbeda. Contohnya template VPC dan terkait network lainnya dibuat oleh Network Engineer, template RDS dan DynamoDB dibuat oleh Database Administrator, template IAM role dan IAM policy dibuat oleh IT Security, atau lainnya. Informasi lebih lanjut ada disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-nested-stacks.html.
+
+#----------------------------------------------------------------------------------------#
+Resources:
+# Stack utama (atau template ini) membuat EC2 instance namun dengan template CloudFormation lain (nested stack).  Template yang digunakan sebagai nested stack harus disimpan kedalam S3 bucket.
+  EC2:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/1.1-ec2-simple.yaml
+
+# Stack utama (atau template ini) membuat EBS instance namun dengan template CloudFormation lain (nested stack). Template "3.1-ebs.yaml" memerlukan 3 parameter saat dieksekusi, seperti AZ, EBSType, dan EBSSize. Akan tetapi saat nested stack dibuat, tidak wajib diberikan parameter EBSType dan EBSSize. Hal ini dikarenakan pada template "3.1-ebs.yaml", parameter EBSType dan EBSSize menggunakan default value.
+  EBS:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/3.1-ebs.yaml
+      Parameters:
+        AZ:
+          Fn::Select: [0, Fn::GetAZs: ""]
+#       EBSType: gp2
+#       EBSSize: 1
+
+# Buat EC2 instance menggunakan EBS yang sudah dibuat.
+  EBStoEC2:
+    Type: AWS::EC2::VolumeAttachment
+    Properties: 
+      Device: /dev/sdh
+      InstanceId:
+        Fn::GetAtt: [EC2,Outputs.EC2ID]
+      VolumeId:
+        Fn::GetAtt: [EBS,Outputs.EBSID]
+
+#----------------------------------------------------------------------------------------#
+Outputs:
+# Ekstrak informasi public DNS milik EC2 instance. Cara pengambilannya berbeda karena EC2-nya merupakan nested stack. Stack utama (atau template ini) akan mengambil informasi output dari nested stack yang dibuat menggunakan template "1.1-ec2-simple.yaml".
+  PublicDNSofEC2:
+    Value:
+      Fn::GetAtt: [EC2,Outputs.EC2PublicDNS]
+    Description: Public DNS endpoint of EC2
+
+# Ekstrak informasi public IPv4 address milik EC2 instance yang merupakan nested stack.
+  PublicIPofEC2:
+    Value:
+      Fn::GetAtt: [EC2,Outputs.EC2PublicIP]
+    Description: Public IPv4 of EC2

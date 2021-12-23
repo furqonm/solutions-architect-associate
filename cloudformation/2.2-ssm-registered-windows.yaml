@@ -1,5 +1,6 @@
 Description: >
-  Membuat Windows Server EC2 dengan menggunakan AMI Windows Server 2022 terbaru yang terdaftar di System Manager.
+  EC2 Windows Server yang terdaftar di System Manager.
+
 #----------------------------------------------------------------------------------------#
 Parameters:
 # User memilih System Manager - Parameter Store yang berisi AMI ID untuk EC2 instance, atau bisa menggunakan public Parameter Store yang berisi AMI ID Microsoft Windows Server 2022 terbaru. Harap gunakan AMI seperti Windows Server 2022 yang sudah memiliki SSM agent terpasang didalamnya.
@@ -43,7 +44,7 @@ Parameters:
 
 #----------------------------------------------------------------------------------------#
 Resources:
-# Buat EC2 instance dengan pilihan AMI, instance type, network interface, IAM instance profile, keypair, user data, dan tag.
+# Buat EC2 instance dengan pilihan AMI, instance type, konfigurasi elastic network interface, IAM instance profile, keypair, user data, dan tag.
   EC2:
     Type: AWS::EC2::Instance
     Properties:
@@ -54,7 +55,7 @@ Resources:
         Ref: InstanceType
       KeyName:
         Ref: SSHKeypair
-# Mengatur network interfaces menggunakan security group dan subnet yang dipilih oleh User.
+# Membuat elastic network interface dan mengatur agar menggunakan security group dan subnet yang dipilih oleh User.
       NetworkInterfaces:
         - AssociatePublicIpAddress: true
           DeviceIndex: "0"
@@ -67,7 +68,7 @@ Resources:
         Ref: EC2ProfileforDirectoryService
       UserData:
         Fn::Base64:
-# User data bisa menggunakan variable dari parameter dengan notasi ${parameter} memanfaatkan Fn::Sub atau !Sub.
+# User data bisa menggunakan variable dari parameter dengan notasi ${parameter} memanfaatkan Fn::Sub atau !Sub. Variable disini merupakan role atau feature yang akan diinstall kedalam Windows Server.
           Fn::Sub : |
             <powershell>
             Import-Module ServerManager
@@ -80,7 +81,7 @@ Resources:
       - Key: OS
         Value: Windows Server
 
-# Buat ElasticIP dan pasang ke EC2 instance. Public IPv4 address ini tidak akan berubah meskipun EC2 instance-nya dimatikan lalu dihidupkan.
+# Buat elastic IP dan pasang ke EC2 instance. Public IPv4 address ini tidak akan berubah meskipun EC2 instance-nya dimatikan lalu dihidupkan.
   EIP:
     Type: AWS::EC2::EIP
     Properties:
@@ -155,8 +156,8 @@ Outputs:
   RemoteEC2:
     Value:
 # Menggabungkan beberapa text untuk menampilkan link untuk akses remote, seperti:
-# - URL System Manager - Session Manager yang sifatnya tidak berubah di region manapun.
-# - ID dari EC2 yang ingin di remote. ID diambil dari EC2 yang dibuat.
-# - Region ID yang akan berubah-berubah ketika template ini dieksekusi di region yang berbeda.
+# 1. URL System Manager - Session Manager yang sifatnya tidak berubah di region manapun.
+# 2. ID dari EC2 yang ingin di remote. ID diambil dari EC2 yang dibuat.
+# 3. Region ID yang akan berubah-berubah ketika template ini dieksekusi di region yang berbeda.
       Fn::Join: [ "", [ "https://console.aws.amazon.com/systems-manager/session-manager/", Ref: EC2, "?region=", Ref: AWS::Region ]]
     Description: Remote EC2 via System Manager - Session Manager

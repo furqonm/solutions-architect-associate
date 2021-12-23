@@ -36,7 +36,7 @@ Resources:
 # Buat EBS volume dengan pilihan availability zone, size, volume type, dan tag.
   EBS:
     Type: AWS::EC2::Volume
-# Hapus tanda komentar "#" kalau ingin CloudFormation melakukan snapshot pada saat stack didelete. Harap perhatikan snapshot yang dibuat karena bisa menimbulkan pembayaran.
+# Hapus tanda komentar "#" kalau ingin CloudFormation melakukan snapshot pada saat stack didelete. Harap perhatikan snapshot yang dibuat karena bisa menimbulkan biaya.
 #   DeletionPolicy: Snapshot
     Properties:
       AvailabilityZone:

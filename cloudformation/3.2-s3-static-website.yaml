@@ -1,5 +1,6 @@
 Description: >
-  Membuat S3 bucket dengan fitur static website. Setelah bucket dibuat masukkan file untuk website, seperti html, css, js, jpg, atau lainnya. Minimal bucket diisikan index.html dan error.html.
+  S3 bucket dengan static website.
+# Setelah bucket dibuat, harap masukkan file untuk website, seperti html, css, js, jpg, atau lainnya. Minimal bucket diisikan index.html dan error.html.
 
 #----------------------------------------------------------------------------------------#
 Resources:

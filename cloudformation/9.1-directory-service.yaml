@@ -1,15 +1,15 @@
 Description: >
-  Membuat Directory Service yang merupakan managed Microsoft Active Directory.
+  Microsoft Active Directory menggunakan Directory Service.
 
 #----------------------------------------------------------------------------------------#
 Parameters:
-# User memasukkan nama domain untuk Microsoft Active Directory di Directory Service.
+# User memasukkan nama domain untuk Microsoft Active Directory.
   ActiveDirectoryName:
     Type: String
     Default: trainocate.nusa
     Description: Name of Directory Service.
 
-# User mengatur konfigurasi VPC, Subnet dan Security Group.
+# User mengatur konfigurasi VPC, subnet dan security group.
   VPCID:
     Type: AWS::EC2::VPC::Id
     Description: Select the VPC ID.
@@ -24,7 +24,7 @@ Parameters:
 
 #----------------------------------------------------------------------------------------#
 Resources:
-# Buat Directory Service yang merupakan managed Microsoft Active Directory.
+# Buat directory service yang merupakan managed Microsoft Active Directory dari AWS.
   DirectoryService: 
     Type: AWS::DirectoryService::MicrosoftAD
     Properties: 
@@ -39,7 +39,7 @@ Resources:
           VpcId:
             Ref: VPCID
 
-# Buat SSM Document untuk join ke managed Microsoft Active Directory.
+# Buat SSM document untuk join ke Microsoft Active Directory.
   JoinADDocument:
     Type: AWS::SSM::Document
     Properties:
@@ -67,7 +67,7 @@ Resources:
 
 #----------------------------------------------------------------------------------------#
 Outputs:
-# Ekstrak informasi nama dan ID dari Directory Service yang dibuat.
+# Ekstrak informasi nama dan ID dari directory service.
   DirectoryServiceID:
     Value:
       Ref: DirectoryService
@@ -78,13 +78,13 @@ Outputs:
       Ref: ActiveDirectoryName
     Description: Name of Directory Service
 
-# Ekstrak informasi nama dari System Manager - Document untuk join ke domain.
+# Ekstrak informasi nama dari SSM document.
   JoinADDocumentName:
     Value:
       Ref: JoinADDocument
     Description: Name of System Manager - Document for join directory
 
-# Ekstrak informasi IP address dari Directory Service yang dibuat.
+# Ekstrak informasi IP address dari directory service.
   DirectoryIPAddress1:
     Value:
       Fn::Select: [0, Fn::GetAtt: DirectoryService.DnsIpAddresses]

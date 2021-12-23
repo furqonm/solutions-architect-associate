@@ -1,21 +1,21 @@
 Description: >
-  Membuat VPC dengan masing-masing 1 public dan 1 private subnet dikedua Availability Zone. Didalamnya ada Internet Gateway, Route Table, Security Group.
+  VPC dengan public dan private subnet dikedua availability zone, beserta komponen internet gateway, route table, dan security group.
 
 #----------------------------------------------------------------------------------------#
 Parameters:
-# User memasukkan nama VPC yang akan digunakan melalui Tag.
+# User memasukkan nama VPC yang digunakan didalam tag.
   VPCName:
     Type: String
     Default: MyVPC
     Description: Enter the name for this VPC.
 
-# User memasukkan IP range yang nanti digunakan oleh VPC.
+# User memasukkan IP range yang digunakan VPC.
   VPCCIDR:
     Type: String
     Default: 192.168.0.0/16
     Description: Enter the IP range for this VPC.
 
-# User memasukkan beberapa IP range yang nanti digunakan oleh beberapa Subnet didalam VPC.
+# User memasukkan beberapa IP range yang digunakan subnet-subnet didalam VPC.
   PublicSubnet1CIDR:
     Type: String
     Default: 192.168.0.0/24
@@ -38,7 +38,7 @@ Parameters:
 
 #----------------------------------------------------------------------------------------#
 Resources:
-# Buat VPC dengan CIDR block yang user masukkan sebelumnya. EnableDnsHostnames memungkinkan VPC memberikan menerapkan public DNS hostnames ke EC2 instance. Sedangkan EnableDnsSupport memungkinkan untuk melakukan DNS resolution menggunakan Amazon DNS server.
+# Buat VPC dengan CIDR block yang user masukkan sebelumnya. Properti EnableDnsHostnames memungkinkan VPC menerapkan public DNS hostnames ke EC2 instance. Sedangkan properti EnableDnsSupport memungkinkan resource didalam VPC melakukan DNS resolution menggunakan Amazon DNS server (semisal lokal DNS server tapi didalam VPC).
   VPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -59,7 +59,7 @@ Resources:
         Ref: VPC
       AmazonProvidedIpv6CidrBlock: true
 
-# Buat Internet Gateway untuk koneksi internet.
+# Buat internet gateway untuk koneksi internet.
   InternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
@@ -68,7 +68,7 @@ Resources:
           Value:
             Fn::Sub: Lab - ${VPCName} FastInternet
 
-# Pasang Internet Gateway ke VPC.
+# Pasang internet gateway ke VPC.
   InternetGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
@@ -77,7 +77,7 @@ Resources:
       VpcId:
         Ref: VPC
 
-# Buat PublicSubnet untuk VPC dengan CIDR block yang user masukkan sebelumnya.
+# Buat public subnet untuk VPC dengan CIDR block yang user masukkan sebelumnya.
   PublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
@@ -87,7 +87,7 @@ Resources:
         Fn::Select: [0, Fn::GetAZs: ""]
       CidrBlock:
         Ref: PublicSubnet1CIDR
-# Memungkinkan instance didalam Subnet mendapatkan IP public.
+# Memungkinkan instance didalam subnet mendapatkan public IP address.
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
@@ -109,7 +109,7 @@ Resources:
           Value:
             Fn::Sub: Lab - ${VPCName} PublicSubnet2
 
-# Buat PrivateSubnet untuk VPC dengan CIDR block yang user masukkan sebelumnya.
+# Buat private subnet untuk VPC dengan CIDR block yang user masukkan sebelumnya.
   PrivateSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
@@ -119,7 +119,7 @@ Resources:
         Fn::Select: [0, Fn::GetAZs: ""]
       CidrBlock:
         Ref: PrivateSubnet1CIDR
-# Tidak memberikan IP public untuk instance didalam Subnet.
+# Tidak memberikan public IP address untuk instance didalam subnet.
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
@@ -141,7 +141,7 @@ Resources:
           Value:
             Fn::Sub: Lab - ${VPCName} PrivateSubnet2
 
-# Buat RouteTable didalam VPC.
+# Buat route table didalam VPC.
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -152,7 +152,7 @@ Resources:
           Value:
             Fn::Sub: Lab - ${VPCName} PublicRoutes
 
-# Buat Route didalam RouteTable yang mengarahkan traffic ke Internet Gateway.
+# Buat route didalam route table yang mengarahkan traffic ke internet gateway.
   RouteEntry:
     Type: AWS::EC2::Route
     DependsOn: InternetGatewayAttachment
@@ -163,7 +163,7 @@ Resources:
       GatewayId:
         Ref: InternetGateway
 
-# Pasang RouteTable ke PublicSubnet yang kita buat sebelumnya.
+# Pasang route table ke public subnet yang kita buat sebelumnya.
   RouteTableAssociation1:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -183,7 +183,7 @@ Resources:
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow all IP address to SSH, RDP, ICMP and HTTP
+      GroupDescription: Allow all IP address to port SSH, RDP, ICMP and HTTP
       VpcId:
         Ref: VPC
       SecurityGroupIngress:
@@ -221,13 +221,13 @@ Outputs:
     Description: SecurityGroup ID
 
   PublicSubnetsCIDR:
-# Gabung 2 PublicSubnet ID yang dibuat kedalam satu Output dengan notasi koma sebagai penyambung.
+# Gabung 2 public subnet ID menjadi satu output dengan notasi koma "," sebagai penyambung.
     Value:
       Fn::Join: [ ",", [ Ref: PublicSubnet1, Ref: PublicSubnet2 ]]
     Description: List of the PublicSubnets CIDR
 
   PrivateSubnetsCIDR:
-# Gabung 2 PrivateSubnet ID yang dibuat kedalam satu Output dengan notasi koma sebagai penyambung.
+# Gabung 2 private subnet ID menjadi satu output dengan notasi koma "," sebagai penyambung.
     Value:
       Fn::Join: [ ",", [ Ref: PrivateSubnet1, Ref: PrivateSubnet2 ]]
     Description: List of the PrivateSubnets CIDR

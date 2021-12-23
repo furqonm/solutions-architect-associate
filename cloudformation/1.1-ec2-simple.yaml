@@ -1,5 +1,5 @@
 Description: >
-  Membuat Linux EC2 baru dengan pengaturan minimal.
+  Linux EC2 dengan pengaturan minimal.
 
 #----------------------------------------------------------------------------------------#
 Resources:
@@ -40,7 +40,7 @@ Outputs:
       Fn::GetAtt: EC2.PrivateIp
     Description: Private IPv4 of EC2
 
-# Ekstrak informasi public DNS dan public IPv4 address. Yang perlu diperhatikan ketika EC2 instance dimatikan, maka public DNS maupun IPv4-nya tidak akan berlaku lagi. Hal ini karena dua-duanya bersifat ephemeral atau berubah saat EC2-nya dihidupkan kembali.
+# Ekstrak informasi public DNS dan public IPv4 address milik EC2 instance. Yang perlu diperhatikan ketika EC2 instance dimatikan, maka public DNS maupun IPv4-nya tidak akan berlaku lagi. Hal ini karena dua-duanya bersifat ephemeral atau berubah saat EC2-nya dihidupkan kembali.
   EC2PublicDNS:
     Value:
       Fn::GetAtt: EC2.PublicDnsName

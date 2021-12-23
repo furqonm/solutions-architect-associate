@@ -1,5 +1,6 @@
 Description: >
-  Membuat Linux EC2 baru dengan SecurityGroup dan ElasticIP. EC2 juga akan menggunakan Parameter (untuk InstanceType dan SSH Keypair) dan Mapping (untuk AMI ID).
+  Jenkins CI/CD instance dengan security group dan elastic IP.
+# Jenkins merupakan aplikasi open-source yang menyediakan mekanisme continuous integration dan continuous delivery (CI/CD) secara otomatis yang diperlukan oleh developer. Informasi lebih lanjut ada disini https://www.jenkins.io.
 
 #----------------------------------------------------------------------------------------#
 Parameters:
@@ -32,28 +33,23 @@ Resources:
       KeyName:
         Ref: SSHKeypair
       UserData:
-# Download dan extract halaman website kedalam EC2 instance.
+# Download dan install Jenkins kedalam EC2 instance.
         Fn::Base64: |
           #!/bin/bash
-          yum update -y
-          amazon-linux-extras install -y php7.2
-          yum install -y httpd
-          systemctl start httpd
-          systemctl enable httpd
-          chmod 2775 /var/www
-          find /var/www -type d -exec chmod 2775 {} \;
-          find /var/www -type f -exec chmod 0664 {} \;
-          cd /var/www/html
-          wget https://furqonmauladani.s3.amazonaws.com/package.zip
-          unzip package.zip
-          rm -f package.zip
+          yum update -y     
+          wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat/jenkins.repo
+          rpm --import https://pkg.jenkins.io/redhat/jenkins.io.key
+          amazon-linux-extras install epel
+          yum install java-11 -y
+          yum install jenkins -y
+          service jenkins start
       Tags: 
       - Key: Name
-        Value: MyEC2
+        Value: MyJenkins
       - Key: OS
         Value: Amazon Linux 2
 
-# Buat ElasticIP dan pasang ke EC2 instance. Public IPv4 address ini tidak akan berubah meskipun EC2 instance-nya dimatikan lalu dihidupkan.
+# Buat elastic IP dan pasang ke EC2 instance. Public IPv4 address ini tidak akan berubah meskipun EC2 instance-nya dimatikan lalu dihidupkan.
   EIP:
     Type: AWS::EC2::EIP
     Properties:
@@ -63,15 +59,15 @@ Resources:
       - Key: Name
         Value: MyEIP
 
-# Buat SecurityGroup yang membolehkan akses HTTP, SSH, and ICMP(ping) untuk semua IP address.
+# Buat security group yang membolehkan akses TCP 8080 (untuk Jenkins), SSH (untuk remote), and ICMP (untuk ping) bagi semua IP address.
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow all IP address to HTTP, SSH, and ICMP
+      GroupDescription: Allow all IP address to port TCP 8080, SSH, and ICMP
       SecurityGroupIngress:
       - IpProtocol: tcp
-        FromPort: 80
-        ToPort: 80
+        FromPort: 8080
+        ToPort: 8080
         CidrIp: 0.0.0.0/0
       - IpProtocol: tcp
         FromPort: 22
@@ -92,18 +88,20 @@ Outputs:
       Ref: EC2
     Description: EC2 ID
 
-  EC2PrivateIP:
-    Value:
-      Fn::GetAtt: EC2.PrivateIp
-    Description: Private IPv4 of EC2
-
-# Ekstrak informasi public DNS dan public IPv4 address. Public DNS dan IPv4-nya tetap berlaku, meskipun EC2-nya dihidupkan kembali. Hal ini karena EC2 instance menggunakan ElasticIP yang sifatnya static.
-  EC2PublicDNS:
-    Value:
-      Fn::GetAtt: EC2.PublicDnsName
-    Description: Public DNS Endpoint of EC2
-
+# Ekstrak informasi public DNS dan public IPv4 address milik EC2 instance. Public DNS dan IPv4-nya tetap berlaku, meskipun EC2-nya dihidupkan kembali. Hal ini karena EC2 instance menggunakan ElasticIP yang sifatnya static.
   EC2PublicIP:
     Value:
       Fn::GetAtt: EC2.PublicIp
     Description: Public IPv4 of EC2
+
+# Membuat link untuk akses ke Jenkins menggunakan port 8080. Fn::Join menggabungkan Public DNS milik EC2 instance dan teks "8080" dengan tanda ":" sebagai pemisah.
+  JenkinsURL:
+    Value:
+      Fn::Join: [":", [Fn::GetAtt: EC2.PublicDnsName, "8080"]]
+    Description: URL of Jenkins Instance
+
+# Membuat link untuk akses remote ke EC2 instance via EC2 Instance Connect. Teks "ec2-user" pada link merupakan user didalam OS Amazon Linux 2 yang digunakan untuk remote. Informasi lebih lanjut ada disini https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connection-prereqs.html
+  InstanceConnectURL:
+    Value:
+      Fn::Join: ["", ["https://console.aws.amazon.com/ec2/v2/connect/ec2-user/", Ref: EC2]]
+    Description: URL of EC2 Instance Connect

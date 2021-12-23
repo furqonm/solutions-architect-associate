@@ -1,5 +1,5 @@
 Description: >
-  Membuat Linux EC2 dengan menggunakan AMI Amazon Linux 2 terbaru yang terdaftar di System Manager.
+  EC2 Amazon Linux 2 yang terdaftar di System Manager.
 
 #----------------------------------------------------------------------------------------#
 Parameters:
@@ -26,13 +26,13 @@ Parameters:
     Type: AWS::EC2::SecurityGroup::Id
     Description: Select existing SecurityGroup for EC2 instance.
 
-# User memasukkan nama EC2 yang akan digunakan melalui Tag.
+# User memasukkan nama EC2 yang akan digunakan melalui tag.
   EC2Name:
     Type: String
     Default: MyEC2
     Description: Enter the name for EC2 instance.
 
-# User memasukkan URL lokasi dimana aplikasi berada. Silahkan ganti dengan file zip yang lain di S3 bucket atau lokasi yang berbeda.
+# User memasukkan URL lokasi dimana package aplikasi berada. Silahkan ganti file zip dengan yang berbeda yang berada di S3 bucket atau lokasi lain.
   ApplicationURL:
     Type: String
     Default: https://furqonmauladani.s3.amazonaws.com/package.zip
@@ -62,7 +62,7 @@ Resources:
         Ref: EC2ProfileforSSM
       UserData:
         Fn::Base64:
-# User data bisa menggunakan variable dari parameter dengan notasi ${parameter} memanfaatkan Fn::Sub atau !Sub.
+# User data bisa menggunakan variable dari parameter dengan notasi ${parameter} memanfaatkan Fn::Sub atau !Sub. Variable disini merupakan URL dari package aplikasi dalam format zip yang disimpan di S3 bucket atau server lainnya yang bisa diakses secara publik.
           Fn::Sub: |
             #!/bin/bash
             yum update -y
@@ -86,7 +86,7 @@ Resources:
       - Key: OS
         Value: Linux
 
-# Buat ElasticIP dan pasang ke EC2 instance. Public IPv4 address ini tidak akan berubah meskipun EC2 instance-nya dimatikan lalu dihidupkan.
+# Buat elastic IP dan pasang ke EC2 instance. Public IPv4 address ini tidak akan berubah meskipun EC2 instance-nya dimatikan lalu dihidupkan.
   EIP:
     Type: AWS::EC2::EIP
     Properties:
@@ -151,8 +151,8 @@ Outputs:
   RemoteEC2:
     Value:
 # Menggabungkan beberapa text untuk menampilkan link untuk akses remote, seperti:
-# - URL System Manager - Session Manager yang sifatnya tidak berubah di region manapun.
-# - ID dari EC2 yang ingin di remote. ID diambil dari EC2 yang dibuat.
-# - Region ID yang akan berubah-berubah ketika template ini dieksekusi di region yang berbeda.
+# 1. URL System Manager - Session Manager yang sifatnya tidak berubah di region manapun.
+# 2. ID dari EC2 yang ingin di remote. ID diambil dari EC2 yang dibuat.
+# 3. Region ID yang akan berubah-berubah ketika template ini dieksekusi di region yang berbeda.
       Fn::Join: [ "", [ "https://console.aws.amazon.com/systems-manager/session-manager/", Ref: EC2, "?region=", Ref: AWS::Region ]]
     Description: Remote EC2 via System Manager - Session Manager

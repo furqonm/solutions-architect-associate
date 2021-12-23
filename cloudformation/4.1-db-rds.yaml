@@ -1,5 +1,5 @@
 Description: >
-  Membuat RDS baru dengan pengaturan minimal.
+  RDS dengan pengaturan minimal.
 
 #----------------------------------------------------------------------------------------#
 Metadata:
@@ -66,7 +66,7 @@ Resources:
 # Gunakan nama DB instance yang dipilih oleh User.
       DBInstanceIdentifier:
         Ref: DatabaseName
-# Kapasitas storage untuk database (dalam satuan GB) dengan nilai minimal 20 sampai 65536, kecuali untuk SQL Server harus 16384. Jika menggunakan Provisioned IOPS SSD harus diisi minimal 100.
+# Kapasitas storage untuk database (dalam satuan GB) dengan nilai minimal 20 sampai 65536, kecuali untuk SQL Server harus 16384. Jika menggunakan provisioned IOPS SSD harus diisi minimal 100.
       AllocatedStorage: 20
       BackupRetentionPeriod: 7
       DBInstanceClass:
@@ -79,7 +79,7 @@ Resources:
         Ref: Password
       MultiAZ: false
       PubliclyAccessible: false
-# Hapus tanda komentar "#" kalau ingin menggunakan Provision IOPS SSD
+# Hapus tanda komentar "#" kalau ingin menggunakan provision IOPS SSD
 #     Iops: '1000'
       Tags:
       - Key: Name

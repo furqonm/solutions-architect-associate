@@ -1,5 +1,6 @@
 Description: >
-  Membuat EC2 dengan menggunakan AMI Windows Server terbaru yang terdaftar di System Manager dan akses ke Directory Service. Directory Service yang merupakan managed Microsoft Active Directory juga akan dibuat.
+  EC2 Windows Server yang join ke Microsoft Active Directory (Directory Service) dan terdaftar di System Manager.
+# Directory Service adalah AWS Managed Microsoft Active Directory (AD). Informasi lebih lanjut ada disini https://aws.amazon.com/directoryservice.
 
 #----------------------------------------------------------------------------------------#
 Parameters:

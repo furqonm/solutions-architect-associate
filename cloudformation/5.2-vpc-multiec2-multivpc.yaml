@@ -1,5 +1,5 @@
 Description: >
-  Membuat EC2 dimasing-masing VPC yang berbeda dengan memanfaatkan template lain (nested stack).
+  Multi VPC dan EC2 instance disetiap VPC sebagai nested stack.
 
 #----------------------------------------------------------------------------------------#
 Metadata:

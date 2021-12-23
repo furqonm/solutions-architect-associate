@@ -1,5 +1,5 @@
 Description: >
-  Membuat DynamoDB table dengan Hash Key dan Range Key sebagai Primary Key-nya.
+  DynamoDB table dengan primary key (hash key dan range key).
 
 #----------------------------------------------------------------------------------------#
 Metadata:
