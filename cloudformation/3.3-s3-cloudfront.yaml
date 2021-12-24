@@ -1,0 +1,44 @@
+Description: >
+  Distribusikan static website di S3 bucket menggunakan CloudFront.
+
+#----------------------------------------------------------------------------------------#
+Resources:
+# Stack utama (atau template ini) membuat S3 instance namun dengan template CloudFormation lain (nested stack). Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-stack.html.
+  S3:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/3.2-s3-static-website.yaml
+
+# Buat CloudFront untuk mendistribusikan static website di S3 bucket. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-cloudfront-distribution.html.
+  CloudFront:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: CDN for S3 static website
+        Enabled: true
+# Atur bagaimana CloudFront mengelola request client ke website.
+        DefaultCacheBehavior:
+          ForwardedValues:
+            QueryString: true
+          TargetOriginId: s3-origin
+          ViewerProtocolPolicy: allow-all
+        DefaultRootObject: index.html
+# Atur origin yang merupakan server dimana website atau konten dihosting.
+        Origins:
+        - CustomOriginConfig:
+            HTTPPort: 80
+            HTTPSPort: 443
+            OriginProtocolPolicy: http-only
+          Id: s3-origin
+          DomainName:
+# Stack utama (atau template ini) akan mengambil informasi output dari nested stack yang dibuat menggunakan template "3.2-s3-static-website.yaml". Informasinya akan digunakan untuk pemilihan origin bagi CloudFront.
+            Fn::Join: ["", [Fn::GetAtt: [S3,Outputs.BucketName], ".s3-website-", Ref: AWS::Region, ".amazonaws.com"]]
+          
+
+#----------------------------------------------------------------------------------------#
+Outputs:
+# Menampilkan URL website menggunakan CloudFront.
+  WebsiteURL:
+    Value:
+      Fn::Join: ["", ["http://", Fn::GetAtt: CloudFront.DomainName]]
+    Description: Website URL
