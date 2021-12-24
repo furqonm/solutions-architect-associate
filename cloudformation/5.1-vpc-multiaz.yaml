@@ -7,7 +7,7 @@ Parameters:
   VPCName:
     Type: String
     Default: MyVPC
-    Description: Enter the name for this VPC.
+    Description: Enter the unique name for this VPC.
 
 # User memasukkan IP range yang digunakan VPC.
   VPCCIDR:
@@ -38,20 +38,22 @@ Parameters:
 
 #----------------------------------------------------------------------------------------#
 Resources:
-# Buat VPC dengan CIDR block yang user masukkan sebelumnya. Properti EnableDnsHostnames memungkinkan VPC menerapkan public DNS hostnames ke EC2 instance. Sedangkan properti EnableDnsSupport memungkinkan resource didalam VPC melakukan DNS resolution menggunakan Amazon DNS server (semisal lokal DNS server tapi didalam VPC).
+# Buat VPC dengan CIDR block yang user masukkan sebelumnya. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-vpc.html.
   VPC:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock:
         Ref: VPCCIDR
+# Properti EnableDnsSupport memungkinkan resource didalam VPC melakukan DNS resolution menggunakan Amazon DNS server (semisal lokal DNS server tapi didalam VPC).
       EnableDnsSupport: true
+# Properti EnableDnsHostnames memungkinkan VPC menerapkan public DNS hostnames ke EC2 instance.
       EnableDnsHostnames: true
       Tags:
         - Key: Name
           Value:
             Fn::Sub: Lab - ${VPCName} 
 
-# Mengatur agar VPC mendapatkan IPv6.
+# Mengatur agar VPC mendapatkan CIDR block IPv6. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-vpccidrblock.html.
   VpcCidrBlockIpv6:
     Type: AWS::EC2::VPCCidrBlock
     Properties:
@@ -59,7 +61,7 @@ Resources:
         Ref: VPC
       AmazonProvidedIpv6CidrBlock: true
 
-# Buat internet gateway untuk koneksi internet.
+# Buat internet gateway untuk koneksi internet. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-internetgateway.html.
   InternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
@@ -68,7 +70,7 @@ Resources:
           Value:
             Fn::Sub: Lab - ${VPCName} FastInternet
 
-# Pasang internet gateway ke VPC.
+# Pasang internet gateway ke VPC. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-vpc-gateway-attachment.html.
   InternetGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
@@ -77,13 +79,14 @@ Resources:
       VpcId:
         Ref: VPC
 
-# Buat public subnet untuk VPC dengan CIDR block yang user masukkan sebelumnya.
+# Buat public subnet untuk VPC dengan CIDR block yang user masukkan sebelumnya. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-subnet.html.
   PublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId:
         Ref: VPC
       AvailabilityZone:
+# Fn::GetAZs menampilkan daftar availability zone (AZ) berdasarkan urutan abjad di region dimana template ini dieksekusi. Fn::Select untuk memilih satu AZ diurutan pertama dari daftar AZ.
         Fn::Select: [0, Fn::GetAZs: ""]
       CidrBlock:
         Ref: PublicSubnet1CIDR
@@ -100,6 +103,7 @@ Resources:
       VpcId:
         Ref: VPC
       AvailabilityZone:
+# Fn::GetAZs menampilkan daftar availability zone (AZ) berdasarkan urutan abjad di region dimana template ini dieksekusi. Fn::Select untuk memilih satu AZ diurutan kedua dari daftar AZ.
         Fn::Select: [1, Fn::GetAZs: ""]
       CidrBlock:
         Ref: PublicSubnet2CIDR
@@ -141,7 +145,7 @@ Resources:
           Value:
             Fn::Sub: Lab - ${VPCName} PrivateSubnet2
 
-# Buat route table didalam VPC.
+# Buat route table didalam VPC. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-routetable.html.
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -152,10 +156,9 @@ Resources:
           Value:
             Fn::Sub: Lab - ${VPCName} PublicRoutes
 
-# Buat route didalam route table yang mengarahkan traffic ke internet gateway.
+# Buat route didalam route table yang mengarahkan traffic ke internet gateway. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-route.html.
   RouteEntry:
     Type: AWS::EC2::Route
-    DependsOn: InternetGatewayAttachment
     Properties:
       RouteTableId:
         Ref: PublicRouteTable
@@ -163,7 +166,7 @@ Resources:
       GatewayId:
         Ref: InternetGateway
 
-# Pasang route table ke public subnet yang kita buat sebelumnya.
+# Pasang route table ke public subnet yang kita buat sebelumnya. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-subnetroutetableassociation.html.
   RouteTableAssociation1:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -180,10 +183,11 @@ Resources:
       SubnetId:
         Ref: PublicSubnet2
 
+# Buat security group yang membolehkan akses HTTP (untuk website), SSH (untuk remote Linux), RDP (untuk remote Windows), and ICMP (untuk ping) bagi semua IP address. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-security-group.html.
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow all IP address to port SSH, RDP, ICMP and HTTP
+      GroupDescription: Allow all IP address to port HTTP, SSH, RDP, ICMP
       VpcId:
         Ref: VPC
       SecurityGroupIngress:
@@ -210,24 +214,40 @@ Resources:
 
 #----------------------------------------------------------------------------------------#
 Outputs:
+# Ekstrak dan export informasi ID milik VPC.
   VPCID:
     Value:
       Ref: VPC
     Description: VPC ID
+# Export menyatakan bahwa value dari output bisa di import ke stack lainnya (cross-stack references). Informasi lebih lanjut ada disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/outputs-section-structure.html.
+    Export:
+      Name:
+        Fn::Sub: "${VPCName}-VPCID"
 
+# Ekstrak dan export informasi ID milik security group.
   SecurityGroupID:
     Value:
       Ref: SecurityGroup
     Description: SecurityGroup ID
+    Export:
+      Name:
+        Fn::Sub: "${VPCName}-SecurityGroupID"
 
+# Ekstrak dan export informasi public subnet ID. Gabung 2 public subnet ID menjadi satu output dengan notasi koma "," sebagai penyambung.
   PublicSubnetsCIDR:
-# Gabung 2 public subnet ID menjadi satu output dengan notasi koma "," sebagai penyambung.
     Value:
       Fn::Join: [ ",", [ Ref: PublicSubnet1, Ref: PublicSubnet2 ]]
     Description: List of the PublicSubnets CIDR
+    Export:
+      Name:
+        Fn::Sub: "${VPCName}-PublicSubnetsCIDR"
 
+
+# Ekstrak dan export informasi private subnet ID. Gabung 2 private subnet ID menjadi satu output dengan notasi koma "," sebagai penyambung.
   PrivateSubnetsCIDR:
-# Gabung 2 private subnet ID menjadi satu output dengan notasi koma "," sebagai penyambung.
     Value:
       Fn::Join: [ ",", [ Ref: PrivateSubnet1, Ref: PrivateSubnet2 ]]
     Description: List of the PrivateSubnets CIDR
+    Export:
+      Name:
+        Fn::Sub: "${VPCName}-PrivateSubnetsCIDR"
