@@ -1,10 +1,10 @@
 Description: >
-  S3 bucket dengan static website.
+  Hosting static website dengan S3 bucket.
 # Setelah bucket dibuat, harap masukkan file untuk website, seperti html, css, js, jpg, atau lainnya. Minimal bucket diisikan index.html dan error.html.
 
 #----------------------------------------------------------------------------------------#
 Resources:
-# Buat S3 bucket dengan fitur static website dan bucket policy.
+# Buat S3 bucket dengan fitur static website dan bucket policy. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-s3-bucket.html.
   S3Bucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -18,7 +18,7 @@ Resources:
       - Key: Name
         Value: MyS3
 
-# Menerapkan bucket policy untuk mengizinkan akses ke objek didalam bucket untuk siapapun.
+# Menerapkan bucket policy untuk mengizinkan akses ke objek didalam bucket untuk siapapun. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-policy.html.
   BucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -37,8 +37,14 @@ Resources:
 
 #----------------------------------------------------------------------------------------#
 Outputs:
-# Menampilkan URL dari static website.
+# Menampilkan URL website menggunakan S3.
   WebsiteURL:
     Value:
       Fn::GetAtt: S3Bucket.WebsiteURL
     Description: Website URL hosted on S3
+
+# Ekstrak informasi nama bucket.
+  BucketName:
+    Value:
+      Ref: S3Bucket
+    Description: S3 bucket name
