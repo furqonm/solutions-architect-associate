@@ -3,7 +3,7 @@ Description: >
 
 #----------------------------------------------------------------------------------------#
 Resources:
-# Buat EC2 instance dengan pilihan AMI, instance type, user data, dan tag.
+# Buat EC2 instance dengan pilihan AMI, instance type, user data, dan tag. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html.
   EC2:
     Type: AWS::EC2::Instance
     Properties:

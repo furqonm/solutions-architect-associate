@@ -40,7 +40,7 @@ Parameters:
 
 #----------------------------------------------------------------------------------------#
 Resources:
-# Buat EC2 instance dengan pilihan AMI, instance type, konfigurasi elastic network interface, IAM instance profile, keypair, user data, dan tag.
+# Buat EC2 instance dengan pilihan AMI, instance type, konfigurasi elastic network interface, IAM instance profile, keypair, user data, dan tag. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html.
   EC2:
     Type: AWS::EC2::Instance
     Properties:
@@ -86,7 +86,7 @@ Resources:
       - Key: OS
         Value: Linux
 
-# Buat elastic IP dan pasang ke EC2 instance. Public IPv4 address ini tidak akan berubah meskipun EC2 instance-nya dimatikan lalu dihidupkan.
+# Buat elastic IP dan pasang ke EC2 instance. Public IPv4 address ini tidak akan berubah meskipun EC2 instance-nya dimatikan lalu dihidupkan. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-eip.html.
   EIP:
     Type: AWS::EC2::EIP
     Properties:
@@ -97,7 +97,7 @@ Resources:
         Value:
           Fn::Sub: Lab - ${EC2Name} EIP
   
-# Buat IAM role yang membolehkan agar SSM agent didalam EC2 bisa dikontrol oleh AWS System Manager.
+# Buat IAM role yang membolehkan agar SSM agent didalam EC2 bisa dikontrol oleh AWS System Manager. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-role.html.
   EC2RoleforSSM:
     Type: AWS::IAM::Role
     Properties:
@@ -117,7 +117,7 @@ Resources:
         Value:
           Fn::Sub: Lab - ${EC2Name} Role
 
-# Buat instance profile yang terhubung dengan IAM role. IAM role tidak akan dipasang secara langsung ke EC2 instance, melainkan instance profile yang akan dipasang.
+# Buat instance profile yang terhubung dengan IAM role. IAM role tidak akan dipasang secara langsung ke EC2 instance, melainkan instance profile yang akan dipasang. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-instanceprofile.html.
   EC2ProfileforSSM:
     Type: AWS::IAM::InstanceProfile
     Properties: 

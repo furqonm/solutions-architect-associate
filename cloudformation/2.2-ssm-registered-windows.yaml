@@ -44,7 +44,7 @@ Parameters:
 
 #----------------------------------------------------------------------------------------#
 Resources:
-# Buat EC2 instance dengan pilihan AMI, instance type, konfigurasi elastic network interface, IAM instance profile, keypair, user data, dan tag.
+# Buat EC2 instance dengan pilihan AMI, instance type, konfigurasi elastic network interface, IAM instance profile, keypair, user data, dan tag. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html.
   EC2:
     Type: AWS::EC2::Instance
     Properties:
@@ -68,7 +68,7 @@ Resources:
         Ref: EC2ProfileforDirectoryService
       UserData:
         Fn::Base64:
-# User data bisa menggunakan variable dari parameter dengan notasi ${parameter} memanfaatkan Fn::Sub atau !Sub. Variable disini merupakan role atau feature yang akan diinstall kedalam Windows Server.
+# User data bisa menggunakan variable dari parameter dengan notasi ${parameter} memanfaatkan Fn::Sub atau !Sub. Variable disini merupakan role atau feature yang akan diinstall kedalam Windows Server. Rincian powershell scriptnya bisa lihat disini https://docs.microsoft.com/en-us/powershell/module/servermanager/install-windowsfeature.
           Fn::Sub : |
             <powershell>
             Import-Module ServerManager
@@ -81,7 +81,7 @@ Resources:
       - Key: OS
         Value: Windows Server
 
-# Buat elastic IP dan pasang ke EC2 instance. Public IPv4 address ini tidak akan berubah meskipun EC2 instance-nya dimatikan lalu dihidupkan.
+# Buat elastic IP dan pasang ke EC2 instance. Public IPv4 address ini tidak akan berubah meskipun EC2 instance-nya dimatikan lalu dihidupkan. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-eip.html.
   EIP:
     Type: AWS::EC2::EIP
     Properties:
@@ -94,7 +94,8 @@ Resources:
 
 # Buat IAM role yang membolehkan:
 # 1. SSM agent didalam EC2 bisa dikontrol oleh AWS System Manager.
-# 2. Akses ke Directory Service (managed Microsoft Active Directory).
+# 2. Akses ke Directory Service (managed Microsoft Active Directory dari AWS).
+# Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-role.html.
   EC2RoleforDirectoryService:
     Type: AWS::IAM::Role
     Properties: 
@@ -116,7 +117,7 @@ Resources:
         Value:
           Fn::Sub: Lab - ${EC2Name} Role
 
-# Buat instance profile yang terhubung dengan IAM role. IAM role tidak akan dipasang secara langsung ke EC2 instance, melainkan instance profile yang akan dipasang.
+# Buat instance profile yang terhubung dengan IAM role. IAM role tidak akan dipasang secara langsung ke EC2 instance, melainkan instance profile yang akan dipasang. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-instanceprofile.html.
   EC2ProfileforDirectoryService:
     Type: AWS::IAM::InstanceProfile
     Properties: 

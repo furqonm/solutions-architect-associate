@@ -7,15 +7,15 @@ Mappings:
   RegionMap:
     us-east-1:
       AmazonLinux: ami-0ed9277fb7eb570c9 # US East (N. Virginia).
-    us-west-1: 
+    us-west-1:
       AmazonLinux: ami-03af6a70ccd8cb578 # US West (N. California)
     eu-central-1:
       AmazonLinux: ami-05d34d340fb1d89e5 # Europe (Frankfurt)
-    ap-southeast-1: 
+    ap-southeast-1:
       AmazonLinux: ami-0dc5785603ad4ff54 # Asia Pacific (Singapore)
     ap-southeast-3:
       AmazonLinux: ami-060edf23d8df73cc8 # Asia Pacific (Jakarta)
-    ap-northeast-1: 
+    ap-northeast-1:
       AmazonLinux: ami-0218d08a1f9dac831 # Asia Pacific (Tokyo)
 
 #----------------------------------------------------------------------------------------#
@@ -42,7 +42,7 @@ Parameters:
 
 #----------------------------------------------------------------------------------------#
 Resources:
-# Buat EC2 instance dengan pilihan AMI, instance type, subnet ID, keypair, user data, dan tag.
+# Buat EC2 instance dengan pilihan AMI, instance type, subnet ID, keypair, user data, dan tag. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html.
   EC2:
     Type: AWS::EC2::Instance
     Properties:

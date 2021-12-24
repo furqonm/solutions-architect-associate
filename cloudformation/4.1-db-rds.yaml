@@ -57,13 +57,13 @@ Parameters:
 
 #----------------------------------------------------------------------------------------#
 Resources:
-# Buat RDS MySQL.
+# Buat RDS MySQL. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-rds-database-instance.html.
   RDS:
     Type: AWS::RDS::DBInstance
-# Hapus tanda komentar "#" kalau ingin CloudFormation melakukan snapshot pada saat stack didelete. Harap perhatikan snapshot yang dibuat karena bisa menimbulkan pembayaran.
+# Hapus tanda komentar "#" kalau ingin CloudFormation melakukan snapshot pada saat stack didelete. Harap perhatikan snapshot yang dibuat karena bisa menimbulkan biaya.
 #   DeletionPolicy: Snapshot
     Properties:
-# Gunakan nama DB instance yang dipilih oleh User.
+# Gunakan nama DB instance yang dipilih oleh user.
       DBInstanceIdentifier:
         Ref: DatabaseName
 # Kapasitas storage untuk database (dalam satuan GB) dengan nilai minimal 20 sampai 65536, kecuali untuk SQL Server harus 16384. Jika menggunakan provisioned IOPS SSD harus diisi minimal 100.
@@ -88,6 +88,7 @@ Resources:
 
 #----------------------------------------------------------------------------------------#
 Outputs:
+# Ekstrak informasi DNS endpoint dan port milik DB instance.
   ConnectionString:
     Value:
       Fn::Join: [":", [Fn::GetAtt: [RDS,Endpoint.Address], Fn::GetAtt: [RDS,Endpoint.Port]]]

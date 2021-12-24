@@ -1,5 +1,6 @@
 Description: >
   Microsoft Active Directory menggunakan Directory Service.
+# Directory Service adalah AWS Managed Microsoft Active Directory (AD). Informasi lebih lanjut ada disini https://aws.amazon.com/directoryservice.
 
 #----------------------------------------------------------------------------------------#
 Parameters:
@@ -24,13 +25,14 @@ Parameters:
 
 #----------------------------------------------------------------------------------------#
 Resources:
-# Buat directory service yang merupakan managed Microsoft Active Directory dari AWS.
+# Buat directory service yang merupakan managed Microsoft Active Directory dari AWS. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-directoryservice-microsoftad.html.
   DirectoryService: 
     Type: AWS::DirectoryService::MicrosoftAD
     Properties: 
         Name:
           Ref: ActiveDirectoryName
         Edition: Standard
+# Atur password untuk Microsoft Active Directory menggunakan data dari System Manager - Parameter Store. Jika sudah ada parameter sebelumnya, silahkan ganti nama parameter dibawah dengan parameter yang dipunya. Namun jika belum punya, maka silahkan buat parameter dengan nama "/microsoft/active-directory/password". Karena paramater digunakan untuk password, maka rekomendasinya menggunakan SecureString.
         Password: '{{resolve:ssm-secure:/microsoft/active-directory/password}}'
         VpcSettings: 
           SubnetIds: 
@@ -39,7 +41,7 @@ Resources:
           VpcId:
             Ref: VPCID
 
-# Buat SSM document untuk join ke Microsoft Active Directory.
+# Buat SSM document untuk join ke Microsoft Active Directory. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ssm-document.html.
   JoinADDocument:
     Type: AWS::SSM::Document
     Properties:
