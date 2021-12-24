@@ -7,22 +7,22 @@ Metadata:
     ParameterGroups:
     - Label:
         default: Partition Key (Hash Key)
-      Parameters: [HashKey, HashKeyType]
+      Parameters: [Attribute1, Attribute1Type]
     - Label:
         default: Sort Key (Range Key)
-      Parameters: [RangeKey, RangeKeyType]
+      Parameters: [Attribute2, Attribute2Type]
     - Label:
         default: RCU/WCU
       Parameters: [ReadCapacityUnits, WriteCapacityUnits]
 
     ParameterLabels:
-      HashKey:
+      Attribute1:
         default: Name of hash key.
-      HashKeyType:
+      Attribute1Type:
         default: Type of hash key. Input string (S), or number (N).
-      RangeKey:
+      Attribute2:
         default: Name of range key.
-      RangeKeyType:
+      Attribute2Type:
         default: Type of range key. Input string (S), or number (N).
       ReadCapacityUnits:
         default: Provision Read Capacity Units (1 RCU is 4KB/s throughput for read).
@@ -31,32 +31,35 @@ Metadata:
 
 #----------------------------------------------------------------------------------------#
 Parameters:
-  HashKey:
+# User menentukan beberapa atribut dari DynamoDB table. Atribut mirip dengan kolom jika dibandingkan dengan relational database.
+  Attribute1:
     Type: String
     AllowedPattern: "[a-zA-Z0-9]*"
     MinLength: 1
     MaxLength: 2048
     ConstraintDescription: Must contain only alphanumberic characters.
 
-  HashKeyType:
-    Type: String
-    Default: S
-    AllowedPattern: "[S|N]"
-    ConstraintDescription: Must be either S, or N.
-
-  RangeKey:
+  Attribute2:
     Type: String
     AllowedPattern: "[a-zA-Z0-9]*"
     MinLength: 1
     MaxLength: 2048
     ConstraintDescription: Must contain only alphanumberic characters.
- 
-  RangeKeyType:
+
+# User menentukan tipe atributnya apakah string atau number untuk setiap atribut.
+  Attribute1Type:
     Type: String
     Default: S
     AllowedPattern: "[S|N]"
     ConstraintDescription: Must be either S, or N.
 
+  Attribute2Type:
+    Type: String
+    Default: S
+    AllowedPattern: "[S|N]"
+    ConstraintDescription: Must be either S, or N.
+
+# Atur kemampuan baca database per detik DynamoDB table. Nilai 1 RCU = 4 KB/s. Jadi kalau 100 RCU maka table mendapatkan throughput sebesar 400 KB/s.
   ReadCapacityUnits:
     Type: Number
     Default: 5
@@ -64,6 +67,7 @@ Parameters:
     MaxValue: 10000
     ConstraintDescription: Must be between 5 and 10000.
 
+# Atur kemampuan tulis database per detik DynamoDB table. Nilai 1 RCU = 1 KB/s. Jadi kalau 100 RCU maka table mendapatkan throughput sebesar 100 KB/s.
   WriteCapacityUnits:
     Type: Number
     Default: 10
@@ -73,25 +77,29 @@ Parameters:
 
 #----------------------------------------------------------------------------------------#
 Resources:
+# Buat database DynamoDB dengan hash key dan range key. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-dynamodb-table.html.
   DynamoDBTable:
     Type: AWS::DynamoDB::Table
     Properties:
+# Atur beberapa atribut dari DynamoDB table.
       AttributeDefinitions:
       - AttributeName:
-          Ref: HashKey
+          Ref: Attribute1
         AttributeType:
-          Ref: HashKeyType
+          Ref: Attribute1Type
       - AttributeName:
-          Ref: RangeKey
+          Ref: Attribute2
         AttributeType:
-          Ref: RangeKeyType
+          Ref: Attribute2Type
+# Atur primary key yang terdiri dari partition key (hash key) dan sort key (range key).
       KeySchema:
       - AttributeName:
-          Ref: HashKey
+          Ref: Attribute1
         KeyType: HASH
       - AttributeName:
-          Ref: RangeKey
+          Ref: Attribute2
         KeyType: RANGE
+# Atur kemampuan baca dan tulis database per detik sesuai dengan yang dimasukkan oleh user.
       ProvisionedThroughput:
         ReadCapacityUnits:
           Ref: ReadCapacityUnits
@@ -100,7 +108,8 @@ Resources:
 
 #----------------------------------------------------------------------------------------#
 Outputs:
+# Ekstrak informasi nama DynamoDB table yang diperlukan untuk akses ke database.
   TableARN:
     Value:
-      Fn::GetAtt: DynamoDBTable.Arn
-    Description: ARN of the created DynamoDB table
+      Ref: DynamoDBTable
+    Description: DynamoDB table name
