@@ -37,7 +37,7 @@ _[DISCLAIMER] Links dan materials yang ada disini dipergunakan untuk tambahan ma
 - [How to Get Official AWS Practice Exams for Free](https://www.youtube.com/watch?v=fR-sjK2u6D4&ab_channel=SkillFillip)
 
     > Cara mendapatkan simulasi ujian gratis via PSI Online untuk mengenali format pertanyaan ujian Solutions Architect Associate nanti. Untuk mencoba syaratnya *harus lulus minimal satu ujian AWS* apapun.
----
+
 ## Hands-on Labs
 ### 1. Video Demo Lab
 - [AWS Technical Essentials v5](http://bit.ly/tesslabs5), untuk versi lama [disini](http://bit.ly/tesslabs)
