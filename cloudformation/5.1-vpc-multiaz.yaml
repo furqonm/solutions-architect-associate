@@ -184,10 +184,10 @@ Resources:
         Ref: PublicSubnet2
 
 # Buat security group yang membolehkan akses HTTP (untuk website), SSH (untuk remote Linux), RDP (untuk remote Windows), and ICMP (untuk ping) bagi semua IP address. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-security-group.html.
-  SecurityGroup:
+  AppSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow all IP address to port HTTP, SSH, RDP, ICMP
+      GroupDescription: Allow all IP address to port HTTP, SSH, RDP, and ICMP
       VpcId:
         Ref: VPC
       SecurityGroupIngress:
@@ -210,7 +210,35 @@ Resources:
       Tags:
       - Key: Name
         Value:
-          Fn::Sub: Lab - ${VPCName} SecurityGroup
+          Fn::Sub: Lab - ${VPCName} AppSecurityGroup
+
+# Buat security group yang membolehkan akses MySQL, SQL Server, dan EFS bagi semua EC2 yang menggunakan security group "AppSecurityGroup".
+  DataSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow all IP address to port MySQL, SQL Server, and EFS
+      VpcId:
+        Ref: VPC
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 3306
+        ToPort: 3306
+        SourceSecurityGroupId:
+          Ref: AppSecurityGroup
+      - IpProtocol: tcp
+        FromPort: 1433
+        ToPort: 1433
+        SourceSecurityGroupId:
+          Ref: AppSecurityGroup
+      - IpProtocol: tcp
+        FromPort: 2049
+        ToPort: 2049
+        SourceSecurityGroupId:
+          Ref: AppSecurityGroup
+      Tags:
+      - Key: Name
+        Value:
+          Fn::Sub: Lab - ${VPCName} DataSecurityGroup
 
 #----------------------------------------------------------------------------------------#
 Outputs:
@@ -224,14 +252,23 @@ Outputs:
       Name:
         Fn::Sub: "${VPCName}-VPCID"
 
-# Ekstrak dan export informasi ID milik security group.
-  SecurityGroupID:
+# Ekstrak dan export informasi ID milik security group untuk EC2.
+  AppSecurityGroupID:
     Value:
-      Ref: SecurityGroup
-    Description: SecurityGroup ID
+      Ref: AppSecurityGroup
+    Description: SecurityGroup ID for EC2
     Export:
       Name:
-        Fn::Sub: "${VPCName}-SecurityGroupID"
+        Fn::Sub: "${VPCName}-AppSecurityGroupID"
+
+# Ekstrak dan export informasi ID milik security group untuk RDS atau EFS.
+  DataSecurityGroupID:
+    Value:
+      Ref: DataSecurityGroup
+    Description: SecurityGroup ID for RDS or EFS
+    Export:
+      Name:
+        Fn::Sub: "${VPCName}-DataSecurityGroupID"
 
 # Ekstrak dan export informasi public subnet ID. Gabung 2 public subnet ID menjadi satu output dengan notasi koma "," sebagai penyambung.
   PublicSubnetsCIDR:

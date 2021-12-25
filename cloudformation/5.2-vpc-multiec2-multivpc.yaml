@@ -87,7 +87,7 @@ Resources:
         SubnetID:
           Fn::Select: [0, Fn::Split: [",", Fn::GetAtt: [FirstVPC,Outputs.PublicSubnetsCIDR]]]
         SecurityGroupID:
-          Fn::GetAtt: [FirstVPC,Outputs.SecurityGroupID]
+          Fn::GetAtt: [FirstVPC,Outputs.AppSecurityGroupID]
         ApplicationURL: https://furqonmauladani.s3.amazonaws.com/package.zip
 
   SecondEC2:
@@ -102,7 +102,7 @@ Resources:
         SubnetID:
           Fn::Select: [0, Fn::Split: [",", Fn::GetAtt: [SecondVPC,Outputs.PublicSubnetsCIDR]]]
         SecurityGroupID:
-          Fn::GetAtt: [SecondVPC,Outputs.SecurityGroupID]
+          Fn::GetAtt: [SecondVPC,Outputs.AppSecurityGroupID]
         ApplicationURL: https://furqonmauladani.s3.amazonaws.com/package.zip
 
 #----------------------------------------------------------------------------------------#

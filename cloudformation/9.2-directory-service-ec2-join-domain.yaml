@@ -1,6 +1,5 @@
 Description: >
   EC2 Windows Server yang join ke Microsoft Active Directory (Directory Service) dan terdaftar di System Manager.
-# Directory Service adalah AWS Managed Microsoft Active Directory (AD). Informasi lebih lanjut ada disini https://aws.amazon.com/directoryservice.
 
 #----------------------------------------------------------------------------------------#
 Parameters:
@@ -40,7 +39,7 @@ Resources:
         SubnetID:
           Fn::Select: [0, Fn::Split: [",", Fn::GetAtt: [VPC,Outputs.PublicSubnetsCIDR]]]
         SecurityGroupID:
-          Fn::GetAtt: [VPC,Outputs.SecurityGroupID]
+          Fn::GetAtt: [VPC,Outputs.AppSecurityGroupID]
         SSHKeypair:
           Ref: SSHKeypair
 
