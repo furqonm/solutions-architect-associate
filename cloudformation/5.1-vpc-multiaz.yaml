@@ -227,7 +227,7 @@ Resources:
           Ref: AppSecurityGroup
       - IpProtocol: tcp
         FromPort: 1433
-        ToPort: 1433
+        ToPort: 1434
         SourceSecurityGroupId:
           Ref: AppSecurityGroup
       - IpProtocol: tcp
@@ -242,49 +242,32 @@ Resources:
 
 #----------------------------------------------------------------------------------------#
 Outputs:
-# Ekstrak dan export informasi ID milik VPC.
+# Ekstrak informasi ID milik VPC.
   VPCID:
     Value:
       Ref: VPC
     Description: VPC ID
-# Export menyatakan bahwa value dari output bisa di import ke stack lainnya (cross-stack references). Informasi lebih lanjut ada disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/outputs-section-structure.html.
-    Export:
-      Name:
-        Fn::Sub: "${VPCName}-VPCID"
 
-# Ekstrak dan export informasi ID milik security group untuk EC2.
+# Ekstrak informasi ID milik security group untuk EC2.
   AppSecurityGroupID:
     Value:
       Ref: AppSecurityGroup
     Description: SecurityGroup ID for EC2
-    Export:
-      Name:
-        Fn::Sub: "${VPCName}-AppSecurityGroupID"
 
-# Ekstrak dan export informasi ID milik security group untuk RDS atau EFS.
+# Ekstrak informasi ID milik security group untuk RDS atau EFS.
   DataSecurityGroupID:
     Value:
       Ref: DataSecurityGroup
     Description: SecurityGroup ID for RDS or EFS
-    Export:
-      Name:
-        Fn::Sub: "${VPCName}-DataSecurityGroupID"
 
-# Ekstrak dan export informasi public subnet ID. Gabung 2 public subnet ID menjadi satu output dengan notasi koma "," sebagai penyambung.
+# Ekstrak informasi public subnet ID. Gabung 2 public subnet ID menjadi satu output dengan notasi koma "," sebagai penyambung.
   PublicSubnetsCIDR:
     Value:
       Fn::Join: [ ",", [ Ref: PublicSubnet1, Ref: PublicSubnet2 ]]
     Description: List of the PublicSubnets CIDR
-    Export:
-      Name:
-        Fn::Sub: "${VPCName}-PublicSubnetsCIDR"
 
-
-# Ekstrak dan export informasi private subnet ID. Gabung 2 private subnet ID menjadi satu output dengan notasi koma "," sebagai penyambung.
+# Ekstrak informasi private subnet ID. Gabung 2 private subnet ID menjadi satu output dengan notasi koma "," sebagai penyambung.
   PrivateSubnetsCIDR:
     Value:
       Fn::Join: [ ",", [ Ref: PrivateSubnet1, Ref: PrivateSubnet2 ]]
     Description: List of the PrivateSubnets CIDR
-    Export:
-      Name:
-        Fn::Sub: "${VPCName}-PrivateSubnetsCIDR"
