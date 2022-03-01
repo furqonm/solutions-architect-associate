@@ -60,8 +60,8 @@ Resources:
 # Buat RDS MySQL. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-rds-database-instance.html.
   RDS:
     Type: AWS::RDS::DBInstance
-# Hapus tanda komentar "#" kalau ingin CloudFormation melakukan snapshot pada saat stack didelete. Harap perhatikan snapshot yang dibuat karena bisa menimbulkan biaya.
-#   DeletionPolicy: Snapshot
+# Ketika CloudFormation stack didelete, semua resource akan didelete. DeletionPolicy memastikan resource didelete ketika CloudFormation stack didelete, tanpa melakukan snapshot. Hal ini dikarenakan DB instance secara default akan melakukan snapshot sebelum resource didelete. Bisa juga diganti "Snapshot" untuk memastikan resource disnapshot sebelum didelete, atau "Retain" untuk memastikan resource tidak didelete meskipun stacknya didelete. Informasi lebih lanjut ada disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html.
+    DeletionPolicy: Delete
     Properties:
 # Gunakan nama DB instance yang dipilih oleh user.
       DBInstanceIdentifier:
@@ -81,10 +81,8 @@ Resources:
       MultiAZ: false
 # Membuat DB instance bisa diakses via internet.
       PubliclyAccessible: true
-# Memastikan DB instance didelete tanpa melakukan snapshot ketika template didelete. Hal ini dikarenakan DB instance akan melakukan snapshot sebelum dia didelete.
-      DeletionPolicy: Delete
 # Hapus tanda komentar "#" kalau ingin menggunakan provision IOPS SSD.
-      Iops: '1000'
+    # Iops: '1000'
       Tags:
       - Key: Name
         Value:
