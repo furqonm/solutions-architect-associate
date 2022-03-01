@@ -1,10 +1,12 @@
-NOTICE: Diharapkan ketika menggunakan template yang menggunakan Nested Stack seperti gambar berikut ini untuk mengganti lokasi bucket yang saya punya kalau terjadi error saat eksekusi template. [alt text](README.png "Template Nested Stack")
+# CloudFormation Guide
+_[NOTICE]: Diharapkan ketika menggunakan template yang menggunakan Nested Stack seperti gambar berikut ini untuk mengganti lokasi bucket yang saya punya kalau terjadi error saat eksekusi template._
+![alt text](README.png "Template Nested Stack")
 
 Langkah-langkahnya:
-1. Download semua template yang ada di GitHub ini dan upload ke bucket masing-masing.
-2. Ubah URL ditemplate yang menggunakan nested stack, yang sebelumnya menggunakan bucket saya dengan bucket masing-masing.
+1. Download semua template yang ada di GitHub ini dan upload ke S3 bucket milik masing-masing.
+2. Ubah URL ditemplate yang menggunakan nested stack yang sebelumnya menggunakan bucket saya dengan bucket milik masing-masing.
 
-## Link
+## Additional Material
 Format template
 https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html
 
