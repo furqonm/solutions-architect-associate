@@ -62,7 +62,3 @@ Outputs:
     Value:
       Ref: TargetGroup
     Description: Target Group ID
-  ApplicationLoadBalancerID:
-    Value:
-      Ref: ApplicationLoadBalancer
-    Description: Application Load Balancer ID

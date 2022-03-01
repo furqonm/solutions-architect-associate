@@ -21,16 +21,16 @@ Mappings:
 Parameters:
   InstanceType:
     Type: String
-    Default: t3.micro
+    Default: t2.micro
     AllowedValues:
-      - t3.micro
+      - t2.micro
       - t3a.small
       - t3a.medium
-    Description: Select instance type for EC2 instance. The default value is t3.micro.
+    Description: Select instance type for EC2 instance. The default value is t2.micro.
 
-  ElasticLoadBalancer:
+  TargetGroupARN:
     Type: String
-    Description: Input Elastic Load Balancer ARN. 
+    Description: Input Target Group ARN that Load Balancer used. 
   FirstEC2SubnetID:
     Type: AWS::EC2::Subnet::Id
     Description: Select the first Subnet ID where the EC2 instances.
@@ -88,12 +88,12 @@ Resources:
       MinSize: 2
       MaxSize: 4
       DesiredCapacity: 2
-      LoadBalancerNames:
-      - Ref: ElasticLoadBalancer
+      TargetGroupARNs:
+      - Ref: TargetGroupARN
       Tags:
       - Key: Name
-        PropagateAtLaunch: true
         Value: EC2AutoScale-Linux
+        PropagateAtLaunch: true
       VPCZoneIdentifier:
         - Ref: FirstEC2SubnetID
         - Ref: SecondEC2SubnetID
