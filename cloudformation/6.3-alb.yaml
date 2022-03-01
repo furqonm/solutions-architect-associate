@@ -1,0 +1,68 @@
+Description: >
+  Application Load Balancer (ALB).
+
+#----------------------------------------------------------------------------------------#
+Parameters:
+# User mengatur konfigurasi VPC, subnet dan security group untuk ALB.
+  VPCID:
+    Type: AWS::EC2::VPC::Id
+    Description: Select the VPC ID.
+  FirstEC2SubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: Select the first Subnet ID where the EC2 instances.
+  SecondEC2SubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: Select the second Subnet ID where the EC2 instances.
+
+#----------------------------------------------------------------------------------------#
+Resources:
+# Buat Elastic Load Balancer.
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+# Type dari Elastic Load Balancernya, apakah NLB (network), GLB (gateway) atau ALB (application). Dalam template ini dikhususkan untuk pembuatan ALB saja.
+      Type: application
+# Atur ALB hanya bisa diakses lokal (internal), atau diakses via internet (internet-facing).     
+      Scheme: internet-facing
+# Atur Elastic Load Balancernya agar bisa menggunakan ipv4 atau dualstack (ipv4 dan ipv6).
+      IpAddressType: ipv4
+# Lokasi deployment dari ALB
+      SubnetMappings:
+      - SubnetId:
+          Ref: FirstEC2SubnetID
+      - SubnetId:
+          Ref: SecondEC2SubnetID
+  Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+      - Type: forward
+        TargetGroupArn:
+          Ref: TargetGroup
+      LoadBalancerArn:
+        Ref: ApplicationLoadBalancer
+      Port: 80
+      Protocol: HTTP
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: MyTargetGroup
+      Port: 80
+      Protocol: HTTP
+      VpcId:
+        Ref: VPCID
+
+#----------------------------------------------------------------------------------------#
+Outputs:
+  URL:
+    Value:
+      Fn::Join: ['', ['http://', Fn::GetAtt: [ApplicationLoadBalancer, DNSName]]]
+    Description: URL of the website
+  TargetGroupID:
+    Value:
+      Ref: TargetGroup
+    Description: Target Group ID
+  ApplicationLoadBalancerID:
+    Value:
+      Ref: ApplicationLoadBalancer
+    Description: Application Load Balancer ID

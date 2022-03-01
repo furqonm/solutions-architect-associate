@@ -1,0 +1,83 @@
+Description: >
+  Network Load Balancer (NLB) dengan Elastic IP address.
+
+#----------------------------------------------------------------------------------------#
+Parameters:
+# User mengatur konfigurasi VPC, subnet dan security group untuk Network Load Balancer.
+  VPCID:
+    Type: AWS::EC2::VPC::Id
+    Description: Select the VPC ID.
+  FirstEC2SubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: Select the first Subnet ID where the EC2 instances.
+  SecondEC2SubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: Select the second Subnet ID where the EC2 instances.
+
+Resources:
+  EIP1:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: VPC
+  EIP2:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: VPC
+
+  NetworkLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+# Type dari Elastic Load Balancernya, apakah NLB (network), GLB (gateway) atau ALB (application). Dalam template ini dikhususkan untuk pembuatan NLB saja.
+      Type: network
+# Atur NLB hanya bisa diakses lokal (internal), atau diakses via internet (internet-facing).     
+      Scheme: internet-facing
+# Atur NLB-nya agar bisa menggunakan ipv4 atau dualstack (ipv4 dan ipv6).
+      IpAddressType: ipv4
+# Lokasi deployment dari NLB berikut mapping dengan Elastic IP addressnya.
+      SubnetMappings:
+      - AllocationId:
+          Fn::GetAtt: [EIP1, AllocationId]
+        SubnetId:
+          Ref: FirstEC2SubnetID
+      - AllocationId:
+          Fn::GetAtt: [EIP2, AllocationId]
+        SubnetId:
+          Ref: SecondEC2SubnetID
+  
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: MyTargetGroup
+      Port: 80
+      Protocol: TCP
+      TargetGroupAttributes:
+      - Key: deregistration_delay.timeout_seconds
+        Value: 20
+      VpcId:
+        Ref: VPCID
+  Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+      - Type: forward
+        TargetGroupArn:
+          Ref: TargetGroup
+      LoadBalancerArn:
+        Ref: NetworkLoadBalancer
+      Port: 80
+      Protocol: TCP
+
+#----------------------------------------------------------------------------------------#
+Outputs:
+  URL:
+    Value:
+      Fn::Join: ['', ['http://', Fn::GetAtt: [NetworkLoadBalancer, DNSName]]]
+    Description: URL of the website
+  TargetGroupID:
+    Value:
+      Ref: TargetGroup
+    Description: Target Group ID
+  NetworkLoadBalancerID:
+    Value:
+      Ref: NetworkLoadBalancer
+    Description: Network Load Balancer ID

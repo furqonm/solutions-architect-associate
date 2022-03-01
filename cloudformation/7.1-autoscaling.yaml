@@ -1,0 +1,118 @@
+Description: >
+  AutoScaling Linux EC2.
+
+#----------------------------------------------------------------------------------------#
+Mappings:
+  RegionMap:
+    us-east-1:
+      AmazonLinux: ami-0ed9277fb7eb570c9 # US East (N. Virginia).
+    us-west-1:
+      AmazonLinux: ami-03af6a70ccd8cb578 # US West (N. California)
+    eu-central-1:
+      AmazonLinux: ami-05d34d340fb1d89e5 # Europe (Frankfurt)
+    ap-southeast-1:
+      AmazonLinux: ami-0dc5785603ad4ff54 # Asia Pacific (Singapore)
+    ap-southeast-3:
+      AmazonLinux: ami-060edf23d8df73cc8 # Asia Pacific (Jakarta)
+    ap-northeast-1:
+      AmazonLinux: ami-0218d08a1f9dac831 # Asia Pacific (Tokyo)
+
+#----------------------------------------------------------------------------------------#
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t3.micro
+    AllowedValues:
+      - t3.micro
+      - t3a.small
+      - t3a.medium
+    Description: Select instance type for EC2 instance. The default value is t3.micro.
+
+  ElasticLoadBalancer:
+    Type: String
+    Description: Input Elastic Load Balancer ARN. 
+  FirstEC2SubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: Select the first Subnet ID where the EC2 instances.
+  SecondEC2SubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: Select the second Subnet ID where the EC2 instances.
+  SecurityGroupID:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: Select existing SecurityGroup for EC2 instance.
+
+#----------------------------------------------------------------------------------------#
+Resources:
+  LaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId:
+        Fn::FindInMap: [RegionMap, Ref: AWS::Region, AmazonLinux]
+      InstanceType:
+        Ref: InstanceType
+      SecurityGroups:
+      - Ref: SecurityGroupID
+      AssociatePublicIpAddress: false
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          yum update -y
+          yum install -y httpd
+          systemctl start httpd
+          systemctl enable httpd
+          export InstanceID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+          export PrivateIP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
+          export Hostname=$(curl -s http://169.254.169.254/latest/meta-data/hostname)
+          echo "
+            <html>
+              <head><title>EC2 Home</title></head>
+              <body>
+                <h1>Hello $InstanceID </h1>
+                <h3>Private IP: $PrivateIP </h3>
+                <h3>Hostname: $Hostname </h3>
+              </body>
+            </html>" > /var/www/html/index.html
+          echo "
+            <html>
+              <head><title>EC2 Health</title></head>
+              <body>
+                <h1>EC2 is healthy</h1>
+              </body>
+            </html>" > /var/www/html/health.html
+
+  AutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      LaunchConfigurationName:
+        Ref: LaunchConfiguration
+      MinSize: 2
+      MaxSize: 4
+      DesiredCapacity: 2
+      LoadBalancerNames:
+      - Ref: ElasticLoadBalancer
+      Tags:
+      - Key: Name
+        Value: EC2AutoScale-Linux
+      - Key: OS
+        Value: Amazon Linux 2
+      VPCZoneIdentifier:
+        - Ref: FirstEC2SubnetID
+        - Ref: SecondEC2SubnetID
+
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+        Count: 2
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MaxBatchSize: 1
+        MinInstancesInService: 1
+        PauseTime: PT15M
+        WaitOnResourceSignals: true
+
+#----------------------------------------------------------------------------------------#
+Outputs:
+  AutoScalingGroupID:
+    Value:
+      Ref: AutoScalingGroup
+    Description: AutoScaling Group ID

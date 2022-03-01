@@ -1,0 +1,78 @@
+Description: >
+  [BUG: Endpoint milik Load Balancer tidak bisa diakses] Classic Load Balancer dan 2 EC2 instance untuk availability.
+
+Parameters:
+# User memilih instance type yang nanti digunakan oleh EC2 instance, atau bisa menggunakan default value.
+  InstanceType:
+    Type: String
+    Default: t3.micro
+    AllowedValues:
+      - t3.micro
+      - t3a.small
+      - t3a.medium
+    Description: Select instance type for EC2 instance. The default value is t3.micro.
+
+# User memilih subnet untuk kedua EC2 instance.
+  FirstEC2SubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: Select existing Subnet for First EC2.
+  
+  SecondEC2SubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: Select existing Subnet for Second EC2.
+
+#----------------------------------------------------------------------------------------#
+Resources:
+  ElasticLoadBalancer:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      AvailabilityZones:
+        Fn::GetAZs: ""
+      CrossZone: true
+      Instances:
+        - Fn::GetAtt: [FirstEC2,Outputs.EC2ID]
+        - Fn::GetAtt: [SecondEC2,Outputs.EC2ID]
+      LBCookieStickinessPolicy:
+      - PolicyName: LoadBalancerPolicy
+        CookieExpirationPeriod: 180
+      Listeners:
+      - LoadBalancerPort: 80
+        InstancePort: 80
+        Protocol: HTTP
+        PolicyNames: [LoadBalancerPolicy]
+      HealthCheck:
+        Target: HTTP:80/
+        HealthyThreshold: 3
+        UnhealthyThreshold: 5
+        Interval: 30
+        Timeout: 5
+      ConnectionDrainingPolicy:
+        Enabled: true
+        Timeout: 300
+  
+  FirstEC2:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/1.2-ec2-parameter%2Bmapping.yaml
+      Parameters:
+        InstanceType:
+          Ref: InstanceType
+        SubnetID:
+          Ref: FirstEC2SubnetID
+  
+  SecondEC2:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/1.2-ec2-parameter%2Bmapping.yaml
+      Parameters:
+        InstanceType:
+          Ref: InstanceType
+        SubnetID:
+          Ref: SecondEC2SubnetID
+
+#----------------------------------------------------------------------------------------#
+Outputs:
+  URL:
+    Value:
+      Fn::Join: ['', ['http://', Fn::GetAtt: [ElasticLoadBalancer, DNSName]]]
+    Description: URL of the website
