@@ -92,9 +92,8 @@ Resources:
       - Ref: ElasticLoadBalancer
       Tags:
       - Key: Name
+        PropagateAtLaunch: true
         Value: EC2AutoScale-Linux
-      - Key: OS
-        Value: Amazon Linux 2
       VPCZoneIdentifier:
         - Ref: FirstEC2SubnetID
         - Ref: SecondEC2SubnetID
