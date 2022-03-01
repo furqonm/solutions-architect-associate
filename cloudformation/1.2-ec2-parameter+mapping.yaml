@@ -35,11 +35,6 @@ Parameters:
     Type: AWS::EC2::Subnet::Id
     Description: Select existing Subnet for EC2.
 
-# User memilih SSH keypair untuk remote ke EC2 instance.
-  SSHKeypair:
-    Type: AWS::EC2::KeyPair::KeyName
-    Description: Select existing EC2 KeyPair for remote SSH.
-
 #----------------------------------------------------------------------------------------#
 Resources:
 # Buat EC2 instance dengan pilihan AMI, instance type, subnet ID, keypair, user data, dan tag. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html.
@@ -55,9 +50,6 @@ Resources:
 # Gunakan subnet yang dipilih oleh user.
       SubnetId:
         Ref: SubnetID
-# Gunakan SSH keypair yang dipilih oleh user.
-      KeyName:
-        Ref: SSHKeypair
       UserData:
 # Mengambil data dari instance metadata (http://169.254.169.254/latest/meta-data/). Lalu membuat halaman html dengan data yang diambil dari instance metadata.
         Fn::Base64: |
