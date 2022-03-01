@@ -42,6 +42,7 @@ Resources:
           amazon-linux-extras install epel
           yum install java-11 -y
           yum install jenkins -y
+          echo "jenkins ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
           service jenkins start
       Tags: 
       - Key: Name

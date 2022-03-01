@@ -67,7 +67,7 @@ Resources:
       DBInstanceIdentifier:
         Ref: DatabaseName
 # Kapasitas storage untuk database (dalam satuan GB) dengan nilai minimal 20 sampai 65536, kecuali untuk SQL Server harus 16384. Jika menggunakan provisioned IOPS SSD harus diisi minimal 100.
-      AllocatedStorage: 20
+      AllocatedStorage: 100
       BackupRetentionPeriod: 7
       DBInstanceClass:
         Ref: InstanceClass
@@ -77,10 +77,14 @@ Resources:
         Ref: Username
       MasterUserPassword:
         Ref: Password
+# Mengatur apakah menggunakan single node saja, atau 2 node untuk availability.
       MultiAZ: false
-      PubliclyAccessible: false
-# Hapus tanda komentar "#" kalau ingin menggunakan provision IOPS SSD
-#     Iops: '1000'
+# Membuat DB instance bisa diakses via internet.
+      PubliclyAccessible: true
+# Memastikan DB instance didelete tanpa melakukan snapshot ketika template didelete. Hal ini dikarenakan DB instance akan melakukan snapshot sebelum dia didelete.
+      DeletionPolicy: Delete
+# Hapus tanda komentar "#" kalau ingin menggunakan provision IOPS SSD.
+      Iops: '1000'
       Tags:
       - Key: Name
         Value:
