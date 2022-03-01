@@ -13,6 +13,7 @@ Parameters:
       - t3a.medium
     Description: Select instance type for EC2 instance. The default value is t3.micro.
 
+# User memilih SSH keypair untuk remote ke EC2 instance.
   SSHKeypair:
     Type: AWS::EC2::KeyPair::KeyName
     Description: Select existing EC2 KeyPair for remote SSH.
@@ -30,6 +31,7 @@ Resources:
 # Pasang SecurityGroup yang dibuat ke EC2 instance.
       SecurityGroups:
         - Ref: SecurityGroup
+# Gunakan SSH keypair yang dipilih oleh user.
       KeyName:
         Ref: SSHKeypair
       UserData:

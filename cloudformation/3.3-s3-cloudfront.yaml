@@ -41,4 +41,4 @@ Outputs:
   WebsiteURL:
     Value:
       Fn::Join: ["", ["http://", Fn::GetAtt: CloudFront.DomainName]]
-    Description: Website URL
+    Description: URL of the website

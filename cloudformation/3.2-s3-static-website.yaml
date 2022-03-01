@@ -41,7 +41,7 @@ Outputs:
   WebsiteURL:
     Value:
       Fn::GetAtt: S3Bucket.WebsiteURL
-    Description: Website URL hosted on S3
+    Description: URL of the website
 
 # Ekstrak informasi nama bucket.
   BucketName:
