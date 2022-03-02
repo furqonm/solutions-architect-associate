@@ -38,7 +38,7 @@ Resources:
         FirstEC2SubnetID:
           Fn::Select: [0, Fn::Split: [",", Fn::GetAtt: [VPC,Outputs.PublicSubnetsCIDR]]]
         SecondEC2SubnetID:
-          Fn::Select: [0, Fn::Split: [",", Fn::GetAtt: [VPC,Outputs.PublicSubnetsCIDR]]]
+          Fn::Select: [1, Fn::Split: [",", Fn::GetAtt: [VPC,Outputs.PublicSubnetsCIDR]]]
         SecurityGroupID:
           Fn::GetAtt: [VPC,Outputs.AppSecurityGroupID]
 
