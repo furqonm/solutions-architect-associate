@@ -1,0 +1,76 @@
+Description: >
+  Scaling Policy and CloudWatch Alarm for EC2.
+
+#----------------------------------------------------------------------------------------#
+Parameters:
+  AutoScalingGroupID:
+    Type: String
+    Description: Input AutoScaling Group Name. 
+  MaxCPU:
+    Type: Number
+    Default: 70
+    MinValue: 50
+    MaxValue: 99
+    ConstraintDescription: Must be between 50 and 99.
+  MinCPU:
+    Type: Number
+    Default: 30
+    MinValue: 5
+    MaxValue: 100
+    ConstraintDescription: Must be between 5 and 99.
+
+#----------------------------------------------------------------------------------------#
+Resources:
+  ScaleUpPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName:
+        Ref: AutoScalingGroupID
+      Cooldown: 60
+      ScalingAdjustment: 1
+  ScaleDownPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName:
+        Ref: AutoScalingGroupID
+      Cooldown: 60
+      ScalingAdjustment: -1
+
+  CPUAlarmHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription:
+        Fn::Sub: Scale-up if CPU > ${MaxCPU}% for 10 minutes
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold:
+        Ref: MaxCPU
+      AlarmActions: [Ref: ScaleUpPolicy]
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value:
+          Ref: AutoScalingGroupID
+      ComparisonOperator: GreaterThanThreshold
+  CPUAlarmLow:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription:
+        Fn::Sub: Scale-down if CPU < ${MinCPU}% for 10 minutes
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 3
+      Threshold:
+        Ref: MinCPU
+      AlarmActions: [Ref: ScaleDownPolicy]
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value:
+          Ref: AutoScalingGroupID
+      ComparisonOperator: LessThanThreshold

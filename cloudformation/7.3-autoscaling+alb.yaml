@@ -30,7 +30,7 @@ Resources:
   AutoScalingGroup:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://furqonmauladani.s3.amazonaws.com/7.1-autoscaling.yaml
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/7.0-autoscaling.yaml
       Parameters:
         InstanceType:
           Ref: InstanceType
@@ -43,10 +43,26 @@ Resources:
         SecurityGroupID:
           Ref: SecurityGroupID
 
+  ScalingPolicySchedule:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/7.1-scaling-policy-schedule.yaml
+      Parameters:
+        AutoScalingGroupID:
+          Fn::GetAtt: [AutoScalingGroup,Outputs.AutoScalingGroupID]
+
+  ScalingPolicySimple:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/7.2-scaling-policy-simplescaling.yaml
+      Parameters:
+        AutoScalingGroupID:
+          Fn::GetAtt: [AutoScalingGroup,Outputs.AutoScalingGroupID]
+
   ApplicationLoadBalancer:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://furqonmauladani.s3.amazonaws.com/6.3-alb.yaml
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/6.0-alb.yaml
       Parameters:
         FirstEC2SubnetID:
           Ref: FirstEC2SubnetID

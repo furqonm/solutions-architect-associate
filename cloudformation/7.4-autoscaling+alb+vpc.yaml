@@ -1,0 +1,78 @@
+Description: >
+  AutoScaling Linux EC2 complete with VPC and ALB.
+
+#----------------------------------------------------------------------------------------#
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - t3a.small
+      - t3a.medium
+    Description: Select instance type for EC2 instance. The default value is t2.micro.
+
+#----------------------------------------------------------------------------------------#
+Resources:
+  VPC:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/5.1-vpc-multiaz.yaml
+      Parameters:
+        VPCName: MyVPC
+        VPCCIDR: 192.168.0.0/16
+        PublicSubnet1CIDR: 192.168.0.0/24
+        PrivateSubnet1CIDR: 192.168.1.0/24
+        PublicSubnet2CIDR: 192.168.2.0/24
+        PrivateSubnet2CIDR: 192.168.3.0/24
+
+  AutoScalingGroup:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/7.0-autoscaling.yaml
+      Parameters:
+        InstanceType:
+          Ref: InstanceType
+        TargetGroupARN:
+          Fn::GetAtt: [ApplicationLoadBalancer,Outputs.TargetGroupID]
+        FirstEC2SubnetID:
+          Fn::Select: [0, Fn::Split: [",", Fn::GetAtt: [VPC,Outputs.PublicSubnetsCIDR]]]
+        SecondEC2SubnetID:
+          Fn::Select: [0, Fn::Split: [",", Fn::GetAtt: [VPC,Outputs.PublicSubnetsCIDR]]]
+        SecurityGroupID:
+          Fn::GetAtt: [VPC,Outputs.AppSecurityGroupID]
+
+  ScalingPolicySchedule:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/7.1-scaling-policy-schedule.yaml
+      Parameters:
+        AutoScalingGroupID:
+          Fn::GetAtt: [AutoScalingGroup,Outputs.AutoScalingGroupID]
+
+  ScalingPolicySimple:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/7.2-scaling-policy-simplescaling.yaml
+      Parameters:
+        AutoScalingGroupID:
+          Fn::GetAtt: [AutoScalingGroup,Outputs.AutoScalingGroupID]
+
+  ApplicationLoadBalancer:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/6.0-alb.yaml
+      Parameters:
+        FirstEC2SubnetID:
+          Fn::Select: [0, Fn::Split: [",", Fn::GetAtt: [VPC,Outputs.PublicSubnetsCIDR]]]
+        SecondEC2SubnetID:
+          Fn::Select: [0, Fn::Split: [",", Fn::GetAtt: [VPC,Outputs.PublicSubnetsCIDR]]]
+        VPCID:
+          Fn::GetAtt: [VPC,Outputs.VPCID]
+
+#----------------------------------------------------------------------------------------#
+Outputs:
+  WebsiteURL:
+    Value:
+      Fn::GetAtt: [ApplicationLoadBalancer,Outputs.URL]
+    Description: URL of the website

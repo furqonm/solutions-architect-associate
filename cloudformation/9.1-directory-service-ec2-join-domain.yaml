@@ -46,7 +46,7 @@ Resources:
   DirectoryService:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://furqonmauladani.s3.amazonaws.com/9.1-directory-service.yaml
+      TemplateURL: https://furqonmauladani.s3.amazonaws.com/9.0-directory-service.yaml
       Parameters:
         VPCID:
           Fn::GetAtt: [VPC,Outputs.VPCID]

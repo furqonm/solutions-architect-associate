@@ -52,18 +52,20 @@ Resources:
         Ref: InstanceType
       SecurityGroups:
       - Ref: SecurityGroupID
-      AssociatePublicIpAddress: false
+      AssociatePublicIpAddress: true
       UserData:
-        Fn::Base64: |
-          #!/bin/bash
-          yum update -y
-          yum install -y httpd
-          systemctl start httpd
-          systemctl enable httpd
-          export InstanceID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
-          export PrivateIP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
-          export Hostname=$(curl -s http://169.254.169.254/latest/meta-data/hostname)
-          echo "
+        Fn::Base64:
+          Fn::Sub: |
+            #!/bin/bash -xe
+            yum install -y aws-cfn-bootstrap httpd
+            /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource AutoScalingGroup --region ${AWS::Region}
+            
+            systemctl start httpd
+            systemctl enable httpd
+            export InstanceID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+            export PrivateIP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
+            export Hostname=$(curl -s http://169.254.169.254/latest/meta-data/hostname)
+            echo "
             <html>
               <head><title>EC2 Home</title></head>
               <body>
@@ -72,7 +74,7 @@ Resources:
                 <h3>Hostname: $Hostname </h3>
               </body>
             </html>" > /var/www/html/index.html
-          echo "
+            echo "
             <html>
               <head><title>EC2 Health</title></head>
               <body>
@@ -108,6 +110,9 @@ Resources:
         MinInstancesInService: 1
         PauseTime: PT15M
         WaitOnResourceSignals: true
+# Buat AutoScaling Group baru, lalu delete AutoScaling Group lama.
+#     AutoScalingReplacingUpdate:
+#     WillReplace: true
 
 #----------------------------------------------------------------------------------------#
 Outputs:

@@ -1,0 +1,30 @@
+Description: >
+  Scaling Policy and CloudWatch Alarm for EC2.
+
+#----------------------------------------------------------------------------------------#
+Parameters:
+  AutoScalingGroupID:
+    Type: String
+    Description: Input AutoScaling Group Name. 
+
+#----------------------------------------------------------------------------------------#
+Resources:
+  ScheduledActionUp:
+    Type: AWS::AutoScaling::ScheduledAction
+    Properties:
+      AutoScalingGroupName:
+        Ref: AutoScalingGroupID
+      MaxSize: 10
+      MinSize: 5
+      Recurrence: 0 7 * * *
+# List timezone bisa dilihat disini https://en.wikipedia.org/wiki/List_of_tz_database_time_zones.
+      TimeZone: Asia/Jakarta
+  ScheduledActionDown:
+    Type: AWS::AutoScaling::ScheduledAction
+    Properties:
+      AutoScalingGroupName:
+        Ref: AutoScalingGroupID
+      MaxSize: 2
+      MinSize: 1
+      Recurrence: 0 19 * * *
+      TimeZone: Asia/Jakarta

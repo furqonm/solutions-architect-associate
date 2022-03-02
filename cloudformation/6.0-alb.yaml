@@ -32,6 +32,8 @@ Resources:
           Ref: FirstEC2SubnetID
       - SubnetId:
           Ref: SecondEC2SubnetID
+
+# Buat Listener yang nanti digunakan oleh Elastic Load Balancer.
   Listener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -43,14 +45,17 @@ Resources:
         Ref: ApplicationLoadBalancer
       Port: 80
       Protocol: HTTP
+
+# Buat Target Group yang mengelompokkan beberapa resource yang akan menerima traffic dari Elastic Load Balancer.
   TargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Name: MyTargetGroup
       Port: 80
       Protocol: HTTP
       VpcId:
         Ref: VPCID
+# Health check akan mencoba melakukan request halaman html apakah bisa diakses atau tidak. Harap diganti dengan / kalau tidak menyediakan halaman html khusus untuk health check didalam EC2 instance.
+      HealthCheckPath: /health.html
 
 #----------------------------------------------------------------------------------------#
 Outputs:
