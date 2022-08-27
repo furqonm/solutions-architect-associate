@@ -20,17 +20,13 @@ _[DISCLAIMER] Links dan materials yang ada disini dipergunakan untuk tambahan ma
     > E-learning untuk latihan persiapan ujian Solutions Architect Associate dari AWS. Materi berisikan eksplorasi topik yang keluar di ujian dan beberapa contoh soal ujian. Untuk mencoba bisa mendaftar menggunakan akun Amazon kita, bukan akun AWS.
 
 - [AWS Certified Solutions Architect - Associate (SAA-C03) Sample Exam Questions](https://d1.awsstatic.com/training-and-certification/docs-sa-assoc/AWS-Certified-Solutions-Architect-Associate_Sample-Questions_C03.pdf)
-- [Qubits42 Test, Learn: AWS Certified Solutions Architect - Associate](https://www.qubits42.com/test/899/1943470) **(Unofficial)**
+- [Qubits42 Test, Learn: AWS Certified Solutions Architect - Associate](https://www.qubits42.com/test/899/1948330) **(Unofficial)**
 
     > Beberapa contoh soal untuk mempersiapkan ujian Solutions Architect Associate.
 
 - [AWS Certified Solutions Architect – Associate Official Practice Question Set (SAA-C03 - English)](https://explore.skillbuilder.aws/learn/course/external/view/elearning/13266/aws-certified-solutions-architect-associate-official-practice-question-set-saa-c03-english)
 
     > Simulasi ujian via BenchPrep untuk mengenali format pertanyaan ujian Solutions Architect Associate nanti. Untuk mencoba bisa mendaftar menggunakan akun Amazon kita, bukan akun AWS.
-
-- [How to Get Official AWS Practice Exams for Free](https://www.youtube.com/watch?v=fR-sjK2u6D4&ab_channel=SkillFillip)
-
-    > Cara mendapatkan simulasi ujian gratis via PSI Online untuk mengenali format pertanyaan ujian Solutions Architect Associate nanti. Untuk mencoba syaratnya *harus lulus minimal satu ujian AWS* apapun.
 
 ## Hands-on Labs
 ### 1. Video Demo Lab
