@@ -11,12 +11,12 @@ Parameters:
 
   InstanceType:
     Type: String
-    Default: t3.micro
+    Default: t3a.micro
     AllowedValues:
-      - t3.micro
+      - t3a.micro
       - t3a.small
       - t3a.medium
-    Description: Select instance type for EC2 instance. The default value is t3.micro.
+    Description: Select instance type for EC2 instance. The default value is t3a.micro.
 
   SubnetID:
     Type: AWS::EC2::Subnet::Id
@@ -35,7 +35,7 @@ Parameters:
 # User memasukkan URL lokasi dimana package aplikasi berada. Silahkan ganti file zip dengan yang berbeda yang berada di S3 bucket atau lokasi lain.
   ApplicationURL:
     Type: String
-    Default: https://furqonmauladani.s3.amazonaws.com/package.zip
+    Default: https://furqonmauladani.s3.ap-southeast-3.amazonaws.com/package.zip
     Description: Insert the URL where the software (package.zip) is located.
 
 #----------------------------------------------------------------------------------------#

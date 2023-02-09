@@ -8,7 +8,7 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
 # AMI ID ini merupakan AMI untuk Amazon Linux di North Virginia. Jika template dieksekusi diluar North Virginia maka CloudFormation stack akan gagal dibuat karena AMI ID tidak tersedia di region tersebut.
-      ImageId: ami-04902260ca3d33422
+      ImageId: ami-0aa7d40eeae50c9a9
       InstanceType: t3.micro
       UserData:
 # Fn::Base64 untuk mengirimkan data yang diencode kedalam EC2 instance sebagai user data. Notasi | digunakan menggabungkan beberapa baris kalimat jika isinya terlalu panjang.

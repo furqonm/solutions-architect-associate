@@ -6,17 +6,13 @@ Mappings:
 # Daftar AMI yang akan digunakan oleh EC2 instance jika dieksekusi di region yang berbeda. Jadi tempate ini berlaku dibeberapa region yang ada didalam daftar.
   RegionMap:
     us-east-1:
-      AmazonLinux: ami-0ed9277fb7eb570c9 # US East (N. Virginia).
-    us-west-1:
-      AmazonLinux: ami-03af6a70ccd8cb578 # US West (N. California)
+      AmazonLinux: ami-0aa7d40eeae50c9a9 # US East (N. Virginia).
     eu-central-1:
-      AmazonLinux: ami-05d34d340fb1d89e5 # Europe (Frankfurt)
+      AmazonLinux: ami-06c39ed6b42908a36 # Europe (Frankfurt).
     ap-southeast-1:
-      AmazonLinux: ami-0dc5785603ad4ff54 # Asia Pacific (Singapore)
+      AmazonLinux: ami-0753e0e42b20e96e3 # Asia Pacific (Singapore).
     ap-southeast-3:
-      AmazonLinux: ami-060edf23d8df73cc8 # Asia Pacific (Jakarta)
-    ap-northeast-1:
-      AmazonLinux: ami-0218d08a1f9dac831 # Asia Pacific (Tokyo)
+      AmazonLinux: ami-0da2d702dc1ff462f # Asia Pacific (Jakarta).
 
 #----------------------------------------------------------------------------------------#
 Parameters:
