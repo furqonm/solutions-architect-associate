@@ -15,12 +15,11 @@ _[DISCLAIMER] Links dan materials yang ada disini dipergunakan untuk tambahan ma
     > Membahas 4 domain/section yang akan ditanyakan diujian. Bisa dicek beberapa poin mana yang tidak dimengerti untuk dipelajari lebih lanjut.
 
 ### 3. Exam Readiness
-- [Exam Readiness: AWS Certified Solutions Architect – Associate (Digital)](https://explore.skillbuilder.aws/learn/course/external/view/elearning/125/exam-readiness-aws-certified-solutions-architect-associate-digital)
+- [Exam Readiness: AWS Certified Solutions Architect – Associate (Digital)](https://explore.skillbuilder.aws/learn/course/external/view/elearning/14760/exam-prep-aws-certified-solutions-architect-associate-saa-c03)
 
     > E-learning untuk latihan persiapan ujian Solutions Architect Associate dari AWS. Materi berisikan eksplorasi topik yang keluar di ujian dan beberapa contoh soal ujian. Untuk mencoba bisa mendaftar menggunakan akun Amazon kita, bukan akun AWS.
 
 - [AWS Certified Solutions Architect - Associate (SAA-C03) Sample Exam Questions](https://d1.awsstatic.com/training-and-certification/docs-sa-assoc/AWS-Certified-Solutions-Architect-Associate_Sample-Questions_C03.pdf)
-- [Qubits42 Test, Learn: AWS Certified Solutions Architect - Associate](https://www.qubits42.com/test/899/1948330) **(Unofficial)**
 
     > Beberapa contoh soal untuk mempersiapkan ujian Solutions Architect Associate.
 
