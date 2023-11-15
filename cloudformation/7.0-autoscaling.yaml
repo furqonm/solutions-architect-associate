@@ -88,9 +88,9 @@ Resources:
     Properties:
       LaunchConfigurationName:
         Ref: LaunchConfiguration
-      MinSize: 2
-      MaxSize: 4
-      DesiredCapacity: 2
+      MinSize: 1
+      MaxSize: 3
+      DesiredCapacity: 1
       TargetGroupARNs:
       - Ref: TargetGroupARN
       Tags:
@@ -103,13 +103,13 @@ Resources:
 
     CreationPolicy:
       ResourceSignal:
-        Timeout: PT15M
+        Timeout: PT10M
         Count: 2
     UpdatePolicy:
       AutoScalingRollingUpdate:
         MaxBatchSize: 1
         MinInstancesInService: 1
-        PauseTime: PT15M
+        PauseTime: PT5M
         WaitOnResourceSignals: true
 # Buat AutoScaling Group baru, lalu delete AutoScaling Group lama.
 #     AutoScalingReplacingUpdate:

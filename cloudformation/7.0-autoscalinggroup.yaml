@@ -1,0 +1,73 @@
+Description: "AutoScaling Linux EC2 with Launch Template using Nested Stack."
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t3a.micro
+    AllowedValues:
+      - t3a.micro
+      - t3a.small
+      - t3a.medium
+    Description: Select instance type for EC2 instance. The default value is t3a.micro.
+
+  TargetGroupARN:
+    Type: String
+    Description: Input Target Group ARN that Load Balancer used. 
+
+  FirstEC2SubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: Select the first Subnet ID where the EC2 instances.
+
+  SecondEC2SubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: Select the second Subnet ID where the EC2 instances.
+
+  SecurityGroupID:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: Select existing SecurityGroup for EC2 instance.
+
+Resources:
+  LaunchTemplateStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: "https://furqonmauladani.s3.ap-southeast-3.amazonaws.com/7.1-launch-template.yaml"
+      Parameters:
+        InstanceType: !Ref InstanceType
+        SecurityGroupID: !Ref SecurityGroupID
+
+  AutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      LaunchTemplate:
+        LaunchTemplateId: !GetAtt LaunchTemplateStack.Outputs.MyLaunchTemplateId
+        Version: !GetAtt LaunchTemplateStack.Outputs.MyLaunchTemplateLatestVersionNumber
+      MinSize: 2
+      MaxSize: 3
+      DesiredCapacity: 2
+      TargetGroupARNs:
+        - Ref: TargetGroupARN
+      Tags:
+        - Key: Name
+          Value: EC2AutoScale-Linux
+          PropagateAtLaunch: true
+      VPCZoneIdentifier:
+        - Ref: FirstEC2SubnetID
+        - Ref: SecondEC2SubnetID
+
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT10M
+        Count: 1
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MaxBatchSize: 1
+        MinInstancesInService: 1
+        PauseTime: PT5M
+        WaitOnResourceSignals: true
+      # AutoScalingReplacingUpdate:
+      #   WillReplace: true
+
+Outputs:
+  AutoScalingGroupID:
+    Value: !Ref AutoScalingGroup
+    Description: AutoScaling Group ID

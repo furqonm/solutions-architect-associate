@@ -1,0 +1,108 @@
+Description: "Launch Template Nested Stack"
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t3a.micro
+    AllowedValues:
+      - t3a.micro
+      - t3a.small
+      - t3a.medium
+    Description: Select instance type for EC2 instance. The default value is t3a.micro.
+
+  SecurityGroupID:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: Select existing SecurityGroup for EC2 instance.
+
+Resources:
+  MyIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: MyEC2Policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "codedeploy:PutLifecycleEventHookExecutionStatus"
+                  - "codedeploy:DownloadBundle"
+                  - "codedeploy:CleanUpDeployment"
+                  - "codedeploy:ApplicationStop"
+                  - "codedeploy:ApplicationStart"
+                  - "codedeploy:ApplicationStop"
+                  - "codedeploy:CreateDeployment"
+                  - "codedeploy:RegisterApplicationRevision"
+                  - "codedeploy:GetApplicationRevision"
+                Resource: "*"
+
+  MyInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref MyIAMRole
+
+  MyLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: MyLaunchTemplate
+      VersionDescription: "Initial version"
+      LaunchTemplateData:
+        ImageId: ami-0230bd60aa48260c6  # Use the appropriate AMI for your region
+        InstanceType: !Ref InstanceType
+        SecurityGroupIds:
+          - !Ref SecurityGroupID
+        IamInstanceProfile:
+          Arn: !GetAtt MyInstanceProfile.Arn
+        UserData:
+          Fn::Base64:
+            Fn::Sub: |
+              #!/bin/bash -xe
+              yum update -y
+              yum install -y ruby wget
+              cd /home/ec2-user
+              wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install
+              chmod +x ./install
+              ./install auto
+
+              yum install -y aws-cfn-bootstrap httpd
+              /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource AutoScalingGroup --region ${AWS::Region}
+
+              systemctl start httpd
+              systemctl enable httpd
+              export InstanceID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+              export PrivateIP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
+              export Hostname=$(curl -s http://169.254.169.254/latest/meta-data/hostname)
+              echo "
+              <html>
+                <head><title>EC2 Home</title></head>
+                <body>
+                  <h1>Hello $InstanceID </h1>
+                  <h3>Private IP: $PrivateIP </h3>
+                  <h3>Hostname: $Hostname </h3>
+                </body>
+              </html>" > /var/www/html/index.html
+              echo "
+              <html>
+                <head><title>EC2 Health</title></head>
+                <body>
+                  <h1>EC2 is healthy</h1>
+                </body>
+              </html>" > /var/www/html/health.html
+
+Outputs:
+  MyLaunchTemplateId:
+    Value: !Ref MyLaunchTemplate
+    Description: Launch Template ID
+
+  MyLaunchTemplateLatestVersionNumber:
+    Value: !GetAtt MyLaunchTemplate.LatestVersionNumber
+    Description: Latest version number of the Launch Template
