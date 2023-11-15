@@ -34,6 +34,7 @@ Resources:
       Parameters:
         InstanceType: !Ref InstanceType
         SecurityGroupID: !Ref SecurityGroupID
+        MainStackId: !Ref AWS::StackId
 
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup

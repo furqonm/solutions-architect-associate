@@ -23,6 +23,10 @@ Parameters:
     Type: AWS::EC2::SecurityGroup::Id
     Description: Select existing SecurityGroup for EC2 instance.
 
+  MainStackId:
+    Type: String
+    Description: Stack ID of the main CloudFormation stack.
+
 Resources:
   MyIAMRole:
     Type: AWS::IAM::Role
@@ -84,7 +88,7 @@ Resources:
               ./install auto
 
               yum install -y aws-cfn-bootstrap httpd
-              /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource AutoScalingGroup --region ${AWS::Region}
+              /opt/aws/bin/cfn-signal -e $? --stack ${MainStackId} --resource AutoScalingGroup --region ${AWS::Region}
 
               systemctl start httpd
               systemctl enable httpd
