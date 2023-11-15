@@ -1,5 +1,14 @@
 Description: "Launch Template Nested Stack"
 
+Mappings:
+  RegionMap:
+    us-east-1:
+      AmazonLinux: ami-0230bd60aa48260c6 # US East (N. Virginia).
+    ap-southeast-1:
+      AmazonLinux: ami-02453f5468b897e31 # Asia Pacific (Singapore).
+    ap-southeast-3:
+      AmazonLinux: ami-0d6c66e2edef56378 # Asia Pacific (Jakarta).
+
 Parameters:
   InstanceType:
     Type: String
@@ -56,7 +65,8 @@ Resources:
       LaunchTemplateName: MyLaunchTemplate
       VersionDescription: "Initial version"
       LaunchTemplateData:
-        ImageId: ami-0230bd60aa48260c6  # Use the appropriate AMI for your region
+        ImageId:
+          Fn::FindInMap: [RegionMap, Ref: AWS::Region, AmazonLinux]
         InstanceType: !Ref InstanceType
         SecurityGroupIds:
           - !Ref SecurityGroupID
