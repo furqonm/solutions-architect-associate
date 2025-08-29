@@ -1,51 +1,33 @@
 # Preparation for AWS Certified Solutions Architect – Associate (SAA-C03)
-_[DISCLAIMER] Links dan materials yang ada disini dipergunakan untuk tambahan materi belajar. Sumber belajar yang saya dokumentasikan sendiri ini tidak merepresentasikan informasi resmi dari pihak AWS, meskipun beberapa link dan material bersumber resmi dari AWS._
+_[DISCLAIMER] The links and materials provided here are for supplementary study purposes. These self-documented study resources do not represent official information from AWS, although some links and materials are from official AWS sources._
 
 ---
 ## Exam Preparation Materials
 ### 1. Course
-- [AWS Certified Solutions Architect - Associate 2020 (PASS THE EXAM!)](https://www.youtube.com/watch?v=Ia-UEYYR44s&ab_channel=freeCodeCamp.org) **(Unofficial)**
+- [AWS Solutions Architect Associate Certification (SAA-C03) – Full Course to PASS the Exam](https://www.youtube.com/watch?v=c3Cn4xYfxJY)
 
-    > Video material dari Andrew Brown (ExamPro) di freecodecamp. Silahkan dipelajari untuk memperdalam pengenalan beberapa service di AWS berikut fitur-fiturnya yang mungkin diujikan.
+    > Video material from Andrew Brown of ExamPro. Please study this to deepen your understanding of various AWS services and their features that might appear on the exam.
 
 ### 2. Exam Guide
-- [AWS Certified Solutions Architect - Associate
-(SAA-C03) Exam Guide](https://d1.awsstatic.com/training-and-certification/docs-sa-assoc/AWS-Certified-Solutions-Architect-Associate_Exam-Guide.pdf)
+- [AWS Certified Solutions Architect - Associate (SAA-C03) Exam Guide](https://d1.awsstatic.com/training-and-certification/docs-sa-assoc/AWS-Certified-Solutions-Architect-Associate_Exam-Guide.pdf)
 
-    > Membahas 4 domain/section yang akan ditanyakan diujian. Bisa dicek beberapa poin mana yang tidak dimengerti untuk dipelajari lebih lanjut.
+    > This guide discusses the 4 domains/sections that will be covered in the exam. You can use it to identify any points you don't understand for further study.
 
 ### 3. Exam Readiness
-- [Exam Readiness: AWS Certified Solutions Architect – Associate (Digital)](https://explore.skillbuilder.aws/learn/course/external/view/elearning/14760/exam-prep-aws-certified-solutions-architect-associate-saa-c03)
-
-    > E-learning untuk latihan persiapan ujian Solutions Architect Associate dari AWS. Materi berisikan eksplorasi topik yang keluar di ujian dan beberapa contoh soal ujian. Untuk mencoba bisa mendaftar menggunakan akun Amazon kita, bukan akun AWS.
-
 - [AWS Certified Solutions Architect - Associate (SAA-C03) Sample Exam Questions](https://d1.awsstatic.com/training-and-certification/docs-sa-assoc/AWS-Certified-Solutions-Architect-Associate_Sample-Questions_C03.pdf)
+- [Exam Prep Official Question Set: AWS Certified Solutions Architect – Associate (SAA-C03) v2](https://awscertificationpractice.benchprep.com/app/exam-prep-official-question-set-aws-certified-solutions-architect-associate-saa-c03-v2?locale=en-us)
+- [Examtopics: Amazon AWS Certified Solutions Architect - Associate SAA-C03 Exam](https://www.examtopics.com/exams/amazon/aws-certified-solutions-architect-associate-saa-c03/)
 
-    > Beberapa contoh soal untuk mempersiapkan ujian Solutions Architect Associate.
-
-- [AWS Certified Solutions Architect – Associate Official Practice Question Set (SAA-C03 - English)](https://explore.skillbuilder.aws/learn/course/external/view/elearning/13266/aws-certified-solutions-architect-associate-official-practice-question-set-saa-c03-english)
-
-    > Simulasi ujian via BenchPrep untuk mengenali format pertanyaan ujian Solutions Architect Associate nanti. Untuk mencoba bisa mendaftar menggunakan akun Amazon kita, bukan akun AWS.
+    > Some sample questions to help you get familiar with the question format for the AWS Solutions Architect Associate exam.
 
 ## Hands-on Labs
 ### 1. Video Demo Lab
-- [AWS Technical Essentials v5](http://bit.ly/tesslabs5), untuk versi lama [disini](http://bit.ly/tesslabs)
-- [Architecting on AWS v7](http://bit.ly/arclabv7), untuk versi lama [disini](http://bit.ly/arclabs)
+- [AWS Technical Essentials v5](http://bit.ly/tesslabs5), for the old version [here](http://bit.ly/tesslabs)
+- [Architecting on AWS v7](http://bit.ly/arclabv7), for the old version [here](http://bit.ly/arclabs)
 
-    > Video rekaman pengerjaan lab yang bisa kita tonton buat ngerefresh apa yang pernah kita kerjakan dulu.
+    > Video recordings of lab walkthroughs that you can watch to refresh what you have previously worked on.
 
-### 2. Free Labs
-- [Amazon Qwiklabs](https://amazon.qwiklabs.com/catalog?price%5B%5D=free)
-
-    > Kumpulan lab AWS yang disediakan gratis. Untuk mencoba bisa mendaftar menggunakan akun Google kita.
-
-- [Play with Docker](https://labs.play-with-docker.com/)
-- [Kubernetes: Hello Minikube](https://kubernetes.io/docs/tutorials/hello-minikube/)
-
-    > Hands-on Labs gratis untuk belajar Docker dan Kubernetes. Lab berjalan di browser tanpa memerlukan instalasi.
-
-### 3. Step-by-Step Tutorials
+### 2. Step-by-Step Tutorials
 - [Well-Architected Labs](https://www.wellarchitectedlabs.com)
-- [AWS Hands-On Tutorials](https://aws.amazon.com/getting-started/hands-on/?getting-started-all.sort-by=item.additionalFields.sortOrder&getting-started-all.sort-order=asc&awsf.getting-started-category=*all&awsf.getting-started-level=*all&awsf.getting-started-content-type=content-type%23how-to)
 
-    > Kumpulan panduan lab yang dikerjakan diakun AWS kita. Harap berhati-hati akan biaya pengeluaran ketika melakukan langkah-langkahnya karena lab ini dikerjakan diakun AWS. Perhatikan langkah terakhir **tear down** atau **clean up** yang menjelaskan apa yang harus diterminate diakun kita.
+    > A collection of lab guides to be completed in your own AWS account. Please be mindful of potential costs when performing the steps, as these labs run in your personal AWS account. Pay close attention to the final **tear down** or **clean up** steps, which detail the resources you need to terminate in your account.
