@@ -5,8 +5,9 @@ _[DISCLAIMER] The links and materials provided here are for supplementary study 
 ## Exam Preparation Materials
 ### 1. Course
 - [AWS Solutions Architect Associate Certification (SAA-C03) – Full Course to PASS the Exam](https://www.youtube.com/watch?v=c3Cn4xYfxJY)
+- [Ultimate AWS Certified Solutions Architect Associate 2026](https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03) **Paid**
 
-    > Video material from Andrew Brown of ExamPro. Please study this to deepen your understanding of various AWS services and their features that might appear on the exam.
+    > Video materials to deepen your understanding of various AWS services and their features that might appear on the exam.
 
 ### 2. Exam Guide
 - [AWS Certified Solutions Architect - Associate (SAA-C03) Exam Guide](https://d1.awsstatic.com/training-and-certification/docs-sa-assoc/AWS-Certified-Solutions-Architect-Associate_Exam-Guide.pdf)
@@ -15,12 +16,12 @@ _[DISCLAIMER] The links and materials provided here are for supplementary study 
 
 ### 3. Exam Readiness
 - [AWS Certified Solutions Architect - Associate (SAA-C03) Sample Exam Questions](https://d1.awsstatic.com/training-and-certification/docs-sa-assoc/AWS-Certified-Solutions-Architect-Associate_Sample-Questions_C03.pdf)
-- [Exam Prep Official Question Set: AWS Certified Solutions Architect – Associate (SAA-C03) v2](https://awscertificationpractice.benchprep.com/app/exam-prep-official-question-set-aws-certified-solutions-architect-associate-saa-c03-v2?locale=en-us)
-- [Examtopics: Amazon AWS Certified Solutions Architect - Associate SAA-C03 Exam](https://www.examtopics.com/exams/amazon/aws-certified-solutions-architect-associate-saa-c03/)
+- [Practice Exams | AWS Certified Solutions Architect Associate](https://www.udemy.com/course/practice-exams-aws-certified-solutions-architect-associate) **Paid**
+- [Examtopics: Amazon AWS Certified Solutions Architect - Associate SAA-C03 Exam](https://www.examtopics.com/exams/amazon/aws-certified-solutions-architect-associate-saa-c03/) **Paid**
 
-    > Some sample questions to help you get familiar with the question format for the AWS Solutions Architect Associate exam.
+    > Multiple sample questions to help you get familiar with the question format for the exam.
 
-## Hands-on Labs
+## Hands-on Labs (Optional)
 ### 1. Video Demo Lab
 - [AWS Technical Essentials v5](http://bit.ly/tesslabs5), for the old version [here](http://bit.ly/tesslabs)
 - [Architecting on AWS v7](http://bit.ly/arclabv7), for the old version [here](http://bit.ly/arclabs)
