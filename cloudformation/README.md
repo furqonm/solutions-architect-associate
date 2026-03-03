@@ -1,37 +1,45 @@
-# CloudFormation Guide
-_[DISCLAIMER] CloudFormation template yang dibuat ini diperuntukkan untuk pembelajaran. Jika ingin diterapkan didalam environment production diharuskan untuk ditest terlebih dahulu karena bisa saja terdapat error._
+# ☁️ AWS CloudFormation Guide
 
-_[NOTICE]: Diharapkan ketika menggunakan template yang menggunakan Nested Stack seperti gambar berikut ini untuk mengganti lokasi bucket yang saya punya kalau terjadi error saat eksekusi template._
-![alt text](README.png "Template Nested Stack")
+Welcome! This repository is designed to help you master AWS CloudFormation through practical templates and modular structures.
 
-Langkah-langkahnya:
-1. Download semua template yang ada di GitHub ini dan upload ke S3 bucket milik masing-masing.
-2. Ubah URL ditemplate yang menggunakan nested stack yang sebelumnya menggunakan bucket saya dengan bucket milik masing-masing.
+> [!CAUTION]
+> **DISCLAIMER:** The CloudFormation templates provided here are intended for **educational purposes**. If you plan to implement them in a production environment, ensure you test them thoroughly first, as configuration errors can occur.
 
-## Additional Material
-Format template
-https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html
+> [!IMPORTANT]
+> **NOTICE:** When using templates that involve **Nested Stacks** (as illustrated below), you **must** update the S3 bucket location. Failure to replace the default bucket URL with your own will result in execution errors. ![alt text](README.png "Template Nested Stack")
+---
 
-Parameter
-https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/parameters-section-structure.html
+## 🚀 Getting Started
 
-Ambil Parameter dari System Manager - Parameter Store atau Secret Manager
-https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/dynamic-references.html
+To successfully deploy these stacks, follow these steps:
 
-Mapping
-https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/mappings-section-structure.html
+1. **Download** all templates from this repository.
+2. **Upload** them to your own private **Amazon S3 bucket**.
+3. **Update the URLs** in the master/parent templates that reference nested stacks. Replace my bucket name with the name of the bucket you created in Step 2.
 
-Condition
-https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/conditions-section-structure.html
+---
 
-Output
-https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/outputs-section-structure.html
+## 📚 Additional Resources & Documentation
 
-Import value dari output resource (misalkan import VPC-ID stack yang sudah jadi sebagai properties saat membuat Target Group milik Load Balancer)
-https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-importvalue.html
+Mastering CloudFormation requires understanding its specific syntax and functions. Use the official AWS documentation below as your roadmap:
 
-Join - Menggabungkan beberapa variable
-https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-join.html
+### **Core Structure**
 
-Referensi template untuk masing-masing service
-https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html
+* **[Template Anatomy](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html):** Learn the required and optional sections of a template.
+* **[Parameters](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/parameters-section-structure.html):** How to input custom values at runtime.
+* **[Mappings](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/mappings-section-structure.html):** Create lookup tables (e.g., Region-to-AMI maps).
+
+### **Advanced Logic**
+
+* **[Dynamic References](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/dynamic-references.html):** Retrieve values from **SSM Parameter Store** or **Secrets Manager**.
+* **[Conditions](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/conditions-section-structure.html):** Control whether certain resources are created based on logic (e.g., `isProd`).
+* **[Outputs](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/outputs-section-structure.html):** Export information for use in other stacks or the console.
+
+### **Intrinsic Functions**
+
+* **[ImportValue](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-importvalue.html):** Share information between stacks (e.g., importing a VPC-ID from a networking stack into a Load Balancer stack).
+* **[Join](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-join.html):** Combine multiple variables or strings into a single value.
+
+### **Service Reference**
+
+* **[Resource Type Reference](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html):** The ultimate dictionary for configuring every AWS service via CloudFormation.
