@@ -54,17 +54,3 @@ To allow the `ec2-user` to upload files without needing `sudo` every time, the s
 ### **Phase 4: Verification**
 
 Finally, it generates a `phpinfo.php` file. Once the script finishes, you can navigate to `http://your-server-ip/phpinfo.php` to verify that the PHP engine is communicating correctly with Apache.
-
----
-
-## 🚀 Usage in AWS (EC2)
-
-To use this script during a launch:
-
-1. Go to the **EC2 Launch Wizard**.
-2. Scroll down to **Advanced Details**.
-3. Paste the script into the **User Data** field.
-4. Launch your instance, and your web server will be ready by the time the status checks pass.
-
-> [!IMPORTANT]
-> Ensure your **Security Group** allows inbound traffic on **Port 80 (HTTP)**, or you won't be able to see the test page!
