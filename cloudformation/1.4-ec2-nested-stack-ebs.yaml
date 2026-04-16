@@ -1,17 +1,16 @@
 Description: >
   Main Stack: Provisions an EC2 instance and an EBS volume using Nested Stacks.
   
-  # A "Nested Stack" is essentially a stack within a stack. This modular approach 
-  # allows different teams (Network, Database, Security) to manage their own templates 
-  # while allowing a master template to pull them all together. Think of it like 
-  # building with Lego sets: one team builds the car, another builds the garage, 
-  # and this template puts the car inside the garage.
-  # Reference: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-nested-stacks.html
+# A "Nested Stack" is essentially a stack within a stack. This modular approach 
+# allows different teams (Network, Database, Security) to manage their own templates 
+# while allowing a master template to pull them all together. Think of it like 
+# building with Lego sets: one team builds the car, another builds the garage, 
+# and this template puts the car inside the garage.
+# Reference: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-nested-stacks.html
 
 #----------------------------------------------------------------------------------------#
 Resources:
   # This resource calls an external template to build the EC2 instance.
-  # The nested template must be stored in an S3 bucket for CloudFormation to access it.
   # Documentation: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-stack.html
   EC2:
     Type: AWS::CloudFormation::Stack
