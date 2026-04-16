@@ -1,52 +1,68 @@
 Description: >
-  Linux EC2 dengan pengaturan minimal.
+  Standard Linux EC2 instance with a minimal web server configuration (Apache + PHP).
 
 #----------------------------------------------------------------------------------------#
 Resources:
-# Buat EC2 instance dengan pilihan AMI, instance type, user data, dan tag. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html.
+  # Create an EC2 instance. For a beginner, think of this as ordering a virtual computer 
+  # from the AWS "factory" with specific hardware and software settings.
   EC2:
     Type: AWS::EC2::Instance
     Properties:
-# AMI ID ini merupakan AMI untuk Amazon Linux di North Virginia. Jika template dieksekusi diluar North Virginia maka CloudFormation stack akan gagal dibuat karena AMI ID tidak tersedia di region tersebut.
-      ImageId: ami-0aa7d40eeae50c9a9
+      # This ID refers to a specific version of Amazon Linux. 
+      # WARNING: This ID is specific to the us-east-1 (N. Virginia) region.
+      ImageId: ami-098e39bafa7e7303d
       InstanceType: t3.micro
+      
+      # UserData is a script that runs automatically ONLY the first time the instance starts.
+      # It is great for installing software so the server is ready to use immediately.
       UserData:
-# Fn::Base64 untuk mengirimkan data yang diencode kedalam EC2 instance sebagai user data. Notasi | digunakan menggabungkan beberapa baris kalimat jika isinya terlalu panjang.
+        # Fn::Base64: AWS requires this script to be encoded. 
+        # The "|" symbol allows us to write the script across multiple lines easily.
         Fn::Base64: |
           #!/bin/bash
+          # Update the package manager to ensure we have the latest security patches
           yum update -y
-          yum install -y httpd
+          
+          # Install Apache (httpd) and PHP
+          yum install -y httpd php
+          
+          # Start the web server and ensure it restarts if the instance reboots
           systemctl start httpd
           systemctl enable httpd
-          echo "<html><h1>Hello EC2</h1></html>" > /var/www/html/index.html
-# Pasang tag untuk EC2 instance.
+          
+          # Create a simple PHP test page to verify installation
+          echo "<?php phpinfo(); ?>" > /var/www/html/info.php
+          
+          # Create a friendly landing page
+          echo "<html><h1>Hello from EC2 with PHP!</h1></html>" > /var/www/html/index.html
+
+      # Tags help you organize your resources. Think of them as "sticky notes" on your server.
       Tags: 
       - Key: Name
-        Value: MyEC2
+        Value: MyPHPWebServer
       - Key: OS
         Value: Amazon Linux 2
 
 #----------------------------------------------------------------------------------------#
 Outputs:
-# Ekstrak informasi ID milik EC2 instance.
+  # Outputs display useful information in the CloudFormation console once the "stack" is finished.
+  
   EC2ID:
     Value:
       Ref: EC2
-    Description: EC2 ID
+    Description: The unique ID assigned to your new instance.
 
-# Ekstrak informasi private IPv4 address milik EC2 instance.
   EC2PrivateIP:
     Value:
       Fn::GetAtt: EC2.PrivateIp
-    Description: Private IPv4 of EC2
+    Description: The internal IP address (used for communication within AWS).
 
-# Ekstrak informasi public DNS dan public IPv4 address milik EC2 instance. Yang perlu diperhatikan ketika EC2 instance dimatikan, maka public DNS maupun IPv4-nya tidak akan berlaku lagi. Hal ini karena dua-duanya bersifat ephemeral atau berubah saat EC2-nya dihidupkan kembali.
   EC2PublicDNS:
     Value:
       Fn::GetAtt: EC2.PublicDnsName
-    Description: Public DNS Endpoint of EC2
+    Description: The public web address. Note: This changes if you stop and start the instance!
 
   EC2PublicIP:
     Value:
       Fn::GetAtt: EC2.PublicIp
-    Description: Public IPv4 of EC2
+    Description: The public IPv4 address to access your website from the internet.
