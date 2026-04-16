@@ -1,59 +1,58 @@
-
 Description: >
-  Membuat EBS baru dengan pengaturan minimal.
+  Standard EBS volume creation with customizable performance and size parameters.
 
 #----------------------------------------------------------------------------------------#
 Parameters:
-# User memilih availability zone dimana EBS volume akan dibuat.
+  # The Availability Zone (AZ) is the specific "Data Center" where the drive is located.
+  # CRITICAL: EBS volumes can only be attached to EC2 instances in the SAME AZ.
   AZ:
     Type: AWS::EC2::AvailabilityZone::Name
-    Description: Select AvailabilityZone for EBS volume.
+    Description: Select the Availability Zone. This must match your EC2 instance's location.
 
-# User memilih tipe EBS volume.
+  # This allows you to choose between speed (SSD) and low cost (HDD).
   EBSType:
     Type: String
     Default: gp2
     AllowedValues:
-      - gp2
-      - gp3
-      - io1
-      - io2
-      - sc1
-      - st1
-    Description: Select volume type for EBS volume.
+      - gp2 # General Purpose SSD (Standard)
+      - gp3 # Newer General Purpose SSD (Cheaper & Faster)
+      - io1 # High-performance SSD (For heavy databases)
+      - io2 # Highest-performance SSD (Extreme reliability)
+      - sc1 # Cold HDD (Cheapest, for rarely accessed data)
+      - st1 # Throughput Optimized HDD (For big data/logging)
+    Description: Select the performance tier for your virtual drive.
 
-# User menentukan kapasitas EBS volume. User hanya bisa memasukkan dengan besar nilai yang sudah ditentukan.
+  # This determines how much data the drive can hold.
   EBSSize:
     Type: Number
     Default: 5
     MinValue: 1
     MaxValue: 16384
-    ConstraintDescription: Must be between 1 GB and 16.384 GB.
-    Description: Minimum size for gp2/gp3 is 1 GB, io1/io2 is 4 GB, and st1/sc1 is 125 GB. Maximum size for all EBS type is 16.384 GB.
+    ConstraintDescription: Must be between 1 GB and 16,384 GB.
+    Description: >
+      Size in GB. Min for SSD (gp/io) is 1-4GB. Min for HDD (st/sc) is 125GB. 
+      Max is always 16,384 GB (16 TB).
 
 #----------------------------------------------------------------------------------------#
 Resources:
-# Buat EBS volume dengan pilihan availability zone, size, volume type, dan tag. Rincian propertinya bisa lihat disini https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-ebs-volume.html.
+  # This resource creates the actual virtual hard drive.
+  # Reference: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-ebs-volume.html
   EBS:
     Type: AWS::EC2::Volume
-# Hapus tanda komentar "#" kalau ingin CloudFormation melakukan snapshot pada saat stack didelete. Harap perhatikan snapshot yang dibuat karena bisa menimbulkan biaya.
-#   DeletionPolicy: Snapshot
+    # DeletionPolicy determines what happens to the data if you delete this CloudFormation stack.
+    # If set to 'Snapshot', AWS saves a backup before deleting. Warning: Snapshots cost money!
+    # DeletionPolicy: Snapshot
     Properties:
-      AvailabilityZone:
-        Ref: AZ
-      Size:
-        Ref: EBSSize
-      VolumeType:
-        Ref: EBSType
+      AvailabilityZone: !Ref AZ
+      Size: !Ref EBSSize
+      VolumeType: !Ref EBSType
       Tags:
         - Key: Name
-          Value:
-            Fn::Sub: Lab - EBS ${EBSType}
+          Value: !Sub "Lab-EBS-${EBSType}" # Dynamically names the drive based on its type
 
 #----------------------------------------------------------------------------------------#
 Outputs:
-# Ekstrak informasi ID milik EBS volume.
+  # This ID is essential if you want to attach this volume to an EC2 instance later.
   EBSID:
-    Value:
-      Ref: EBS
-    Description: EBS ID
+    Value: !Ref EBS
+    Description: The unique ID (Serial Number) of the created EBS volume.
